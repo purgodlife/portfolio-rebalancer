@@ -1,0 +1,85 @@
+{
+  "common": {
+    "appName": "포트폴리오 리밸런서",
+    "save": "저장",
+    "cancel": "취소",
+    "delete": "삭제",
+    "add": "추가",
+    "edit": "수정",
+    "confirm": "확인",
+    "close": "닫기",
+    "krw": "원화(KRW)",
+    "usd": "달러(USD)"
+  },
+  "nav": {
+    "dashboard": "리밸런싱 계산기",
+    "allocation": "자산배분 설정",
+    "holdings": "보유종목",
+    "watchlist": "관심종목",
+    "checklist": "그레이엄 체크리스트",
+    "settings": "설정/백업",
+    "disclaimer": "이용약관"
+  },
+  "disclaimer": {
+    "title": "서비스 이용 전 꼭 확인해주세요",
+    "intro": "이 앱을 계속 사용하려면 아래 내용에 동의해야 합니다.",
+    "point1": "이 도구는 투자 참고용 정보 제공 도구이며, 투자자문이 아닙니다.",
+    "point2": "시세 및 환율 정보는 오류가 있거나 지연될 수 있습니다.",
+    "point3": "투자 결정 및 그 결과에 대한 책임은 전적으로 사용자 본인에게 있습니다.",
+    "point4": "모든 데이터는 서버에 저장되지 않고 사용 중인 브라우저에만 저장됩니다.",
+    "agree": "위 내용을 모두 확인했으며 이에 동의합니다.",
+    "continue": "동의하고 시작하기"
+  },
+  "allocation": {
+    "title": "목표 자산배분",
+    "description": "카테고리별 목표 비중을 자유롭게 정의하세요. 합계는 100%가 되어야 합니다.",
+    "categoryName": "카테고리명",
+    "targetPercent": "목표 비중(%)",
+    "addCategory": "카테고리 추가",
+    "totalLabel": "합계",
+    "totalWarning": "비중 합계가 100%가 아닙니다."
+  },
+  "holdings": {
+    "title": "보유종목",
+    "description": "보유 중인 종목을 입력하세요. 현재가는 수동 입력 또는 새로고침으로 조회할 수 있습니다.",
+    "ticker": "티커",
+    "name": "종목명",
+    "category": "카테고리",
+    "market": "시장",
+    "currency": "통화",
+    "avgPrice": "매수가",
+    "quantity": "수량",
+    "currentPrice": "현재가",
+    "refreshPrice": "현재가 조회",
+    "addHolding": "종목 추가",
+    "marketKR": "한국(KOSPI/KOSDAQ)",
+    "marketUS": "미국"
+  },
+  "calculator": {
+    "title": "리밸런싱 계산기",
+    "description": "입금액을 입력하면 목표 비중에 맞춰 매수 배분을 계산합니다.",
+    "depositAmount": "입금액",
+    "depositCurrency": "입금 통화",
+    "allowSell": "필요 시 매도 포함해서 계산",
+    "calculate": "계산하기",
+    "resultTitle": "계산 결과",
+    "colCategory": "카테고리",
+    "colCurrent": "현재 비중",
+    "colTarget": "목표 비중",
+    "colAction": "액션",
+    "colAmount": "금액",
+    "colTicker": "종목",
+    "buy": "매수",
+    "sell": "매도",
+    "noHoldings": "먼저 보유종목과 자산배분을 입력해주세요.",
+    "totalAfter": "리밸런싱 후 예상 비중"
+  },
+  "settings": {
+    "title": "설정 및 백업",
+    "backupTitle": "데이터 백업/복원",
+    "exportJson": "JSON으로 내보내기",
+    "importJson": "JSON 불러오기",
+    "importWarning": "가져오기를 하면 현재 저장된 데이터를 덮어씁니다.",
+    "language": "언어"
+  }
+}

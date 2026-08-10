@@ -1,0 +1,85 @@
+{
+  "common": {
+    "appName": "Portfolio Rebalancer",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "add": "Add",
+    "edit": "Edit",
+    "confirm": "Confirm",
+    "close": "Close",
+    "krw": "KRW",
+    "usd": "USD"
+  },
+  "nav": {
+    "dashboard": "Rebalance Calculator",
+    "allocation": "Target Allocation",
+    "holdings": "Holdings",
+    "watchlist": "Watchlist",
+    "checklist": "Graham Checklist",
+    "settings": "Settings / Backup",
+    "disclaimer": "Terms"
+  },
+  "disclaimer": {
+    "title": "Please review before using this app",
+    "intro": "To keep using this app, you must agree to the following.",
+    "point1": "This tool is for informational purposes only and is not investment advice.",
+    "point2": "Price and exchange rate data may be inaccurate or delayed.",
+    "point3": "You are solely responsible for your investment decisions and their outcomes.",
+    "point4": "No data is stored on any server; everything stays in your browser only.",
+    "agree": "I have read and agree to the above.",
+    "continue": "Agree and continue"
+  },
+  "allocation": {
+    "title": "Target Asset Allocation",
+    "description": "Define your target categories and weights. The total must equal 100%.",
+    "categoryName": "Category name",
+    "targetPercent": "Target weight (%)",
+    "addCategory": "Add category",
+    "totalLabel": "Total",
+    "totalWarning": "Weights do not add up to 100%."
+  },
+  "holdings": {
+    "title": "Holdings",
+    "description": "Enter your current holdings. Current price can be entered manually or refreshed.",
+    "ticker": "Ticker",
+    "name": "Name",
+    "category": "Category",
+    "market": "Market",
+    "currency": "Currency",
+    "avgPrice": "Avg. buy price",
+    "quantity": "Quantity",
+    "currentPrice": "Current price",
+    "refreshPrice": "Refresh price",
+    "addHolding": "Add holding",
+    "marketKR": "Korea (KOSPI/KOSDAQ)",
+    "marketUS": "United States"
+  },
+  "calculator": {
+    "title": "Rebalance Calculator",
+    "description": "Enter a deposit amount to calculate a buy allocation toward your targets.",
+    "depositAmount": "Deposit amount",
+    "depositCurrency": "Deposit currency",
+    "allowSell": "Allow selling when needed",
+    "calculate": "Calculate",
+    "resultTitle": "Result",
+    "colCategory": "Category",
+    "colCurrent": "Current %",
+    "colTarget": "Target %",
+    "colAction": "Action",
+    "colAmount": "Amount",
+    "colTicker": "Ticker",
+    "buy": "Buy",
+    "sell": "Sell",
+    "noHoldings": "Please set up holdings and allocation first.",
+    "totalAfter": "Projected weight after rebalancing"
+  },
+  "settings": {
+    "title": "Settings & Backup",
+    "backupTitle": "Data backup / restore",
+    "exportJson": "Export as JSON",
+    "importJson": "Import JSON",
+    "importWarning": "Importing will overwrite your currently saved data.",
+    "language": "Language"
+  }
+}
