@@ -16,8 +16,14 @@ export function useHoldings(): Holding[] {
   return useLiveQuery(() => getDb().holdings.toArray(), [], []) ?? [];
 }
 
-export function useAppSettings(): AppSettings | undefined {
-  return useLiveQuery(() => getDb().settings.get('app-settings'), [], undefined);
+/**
+ * settings 레코드가 아직 하나도 없는 최초 실행 상태와, 쿼리가 아직 로딩 중인 상태를
+ * 구분하기 위해 배열 형태로 조회한다 (toArray()는 로딩이 끝나면 빈 배열이라도 항상
+ * 반환하므로, "로딩 중" 기본값 undefined와 확실히 구분된다).
+ */
+export function useAppSettings(): { settings: AppSettings | undefined; isLoading: boolean } {
+  const list = useLiveQuery(() => getDb().settings.toArray(), [], undefined);
+  return { settings: list?.[0], isLoading: list === undefined };
 }
 
 export async function setDisclaimerAgreed(): Promise<void> {
