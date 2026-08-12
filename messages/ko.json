@@ -53,7 +53,19 @@
     "refreshPrice": "현재가 조회",
     "addHolding": "종목 추가",
     "marketKR": "한국(KOSPI/KOSDAQ)",
-    "marketUS": "미국"
+    "marketUS": "미국",
+    "purchaseFxRate": "매입 시 환율(USD/KRW)",
+    "currentFxLabel": "현재 환율",
+    "fxLoading": "환율 조회 중...",
+    "fxError": "환율 조회 실패 (직접 계산 시 기본값 사용)",
+    "fxSummaryTitle": "달러 보유종목 환율 손익",
+    "fxSummaryDescription": "매입 시 환율과 현재 환율 차이로 발생한 환차익을 주가 손익과 분리해서 보여줍니다.",
+    "colPurchaseFx": "매입환율",
+    "colCostKrw": "매입원금(KRW)",
+    "colValueKrw": "평가금액(KRW)",
+    "colPriceGain": "주가손익(KRW)",
+    "colFxGain": "환차익(KRW)",
+    "colTotalGain": "총손익(KRW)"
   },
   "calculator": {
     "title": "리밸런싱 계산기",

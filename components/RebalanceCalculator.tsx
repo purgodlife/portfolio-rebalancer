@@ -1,13 +1,12 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useCategories, useHoldings } from '@/lib/storage/hooks';
 import { calculateRebalance } from '@/lib/rebalance';
+import { useUsdKrwRate, FALLBACK_USD_KRW_RATE } from '@/lib/market/fxRate';
 import type { Currency } from '@/lib/rebalance/types';
 
-// MVP 기본 환율 (사용자가 값을 직접 조정 가능). 이후 단계에서 Frankfurter.app 실시간 조회로 대체.
-const DEFAULT_USD_KRW = 1380;
 const TOLERANCE = 0.05;
 
 export default function RebalanceCalculator() {
@@ -19,7 +18,16 @@ export default function RebalanceCalculator() {
   const [depositAmount, setDepositAmount] = useState('1000000');
   const [depositCurrency, setDepositCurrency] = useState<Currency>('KRW');
   const [allowSell, setAllowSell] = useState(false);
-  const [usdKrwRate, setUsdKrwRate] = useState(String(DEFAULT_USD_KRW));
+  const fx = useUsdKrwRate();
+  const [usdKrwRate, setUsdKrwRate] = useState(String(FALLBACK_USD_KRW_RATE));
+  const [rateTouchedByUser, setRateTouchedByUser] = useState(false);
+
+  // 실시간 환율이 도착하면, 사용자가 아직 직접 수정하지 않았을 때만 자동으로 채워준다.
+  useEffect(() => {
+    if (!rateTouchedByUser && fx.rate) {
+      setUsdKrwRate(String(fx.rate));
+    }
+  }, [fx.rate, rateTouchedByUser]);
 
   const totalPercent = categories.reduce((s, c) => s + c.targetPercent, 0);
   const isAllocationValid = categories.length > 0 && Math.abs(totalPercent - 100) < TOLERANCE;
@@ -68,12 +76,17 @@ export default function RebalanceCalculator() {
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-500 mb-1">USD/KRW</label>
+            <label className="block text-xs text-gray-500 mb-1">
+              USD/KRW {fx.loading && !rateTouchedByUser && '(조회 중...)'}
+            </label>
             <input
               type="number"
               className="input"
               value={usdKrwRate}
-              onChange={(e) => setUsdKrwRate(e.target.value)}
+              onChange={(e) => {
+                setRateTouchedByUser(true);
+                setUsdKrwRate(e.target.value);
+              }}
             />
           </div>
           <label className="flex items-center gap-2 text-sm">

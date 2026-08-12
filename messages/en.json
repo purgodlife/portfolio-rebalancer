@@ -53,7 +53,19 @@
     "refreshPrice": "Refresh price",
     "addHolding": "Add holding",
     "marketKR": "Korea (KOSPI/KOSDAQ)",
-    "marketUS": "United States"
+    "marketUS": "United States",
+    "purchaseFxRate": "Exchange rate at purchase (USD/KRW)",
+    "currentFxLabel": "Current exchange rate",
+    "fxLoading": "Fetching exchange rate...",
+    "fxError": "Failed to fetch exchange rate (using fallback value)",
+    "fxSummaryTitle": "FX gain/loss on USD holdings",
+    "fxSummaryDescription": "Splits the KRW gain/loss into price movement and currency (FX) movement.",
+    "colPurchaseFx": "Purchase FX rate",
+    "colCostKrw": "Cost (KRW)",
+    "colValueKrw": "Value (KRW)",
+    "colPriceGain": "Price gain (KRW)",
+    "colFxGain": "FX gain (KRW)",
+    "colTotalGain": "Total gain (KRW)"
   },
   "calculator": {
     "title": "Rebalance Calculator",

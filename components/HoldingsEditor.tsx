@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useCategories, useHoldings, addHolding, updateHolding, removeHolding } from '@/lib/storage/hooks';
 import StockAutocomplete from './StockAutocomplete';
 import { fetchCurrentPrice } from '@/lib/market/quote';
+import { useUsdKrwRate, FALLBACK_USD_KRW_RATE } from '@/lib/market/fxRate';
 import type { StockEntry } from '@/lib/search/stockData';
 import type { Currency, Holding, Market } from '@/lib/rebalance/types';
 
@@ -17,6 +18,7 @@ const EMPTY_FORM = {
   avgPrice: '',
   quantity: '',
   currentPrice: '',
+  purchaseFxRate: '',
 };
 
 const NEW_ROW_KEY = '__new__';
@@ -29,9 +31,16 @@ export default function HoldingsEditor() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [refreshing, setRefreshing] = useState<Record<string, boolean>>({});
   const [refreshError, setRefreshError] = useState<Record<string, boolean>>({});
+  const fx = useUsdKrwRate();
+  const currentFxRate = fx.rate ?? FALLBACK_USD_KRW_RATE;
 
   function onMarketChange(market: Market) {
-    setForm((f) => ({ ...f, market, currency: market === 'KR' ? 'KRW' : 'USD' }));
+    setForm((f) => ({
+      ...f,
+      market,
+      currency: market === 'KR' ? 'KRW' : 'USD',
+      purchaseFxRate: market === 'US' ? (fx.rate ? String(fx.rate) : f.purchaseFxRate) : '',
+    }));
   }
 
   function applySelectedStock(entry: StockEntry) {
@@ -67,6 +76,7 @@ export default function HoldingsEditor() {
     const avgPrice = parseFloat(form.avgPrice);
     const quantity = parseFloat(form.quantity);
     const currentPrice = parseFloat(form.currentPrice || form.avgPrice);
+    const purchaseFxRate = form.currency === 'USD' ? parseFloat(form.purchaseFxRate) : undefined;
     if (!form.ticker || !form.categoryId || Number.isNaN(avgPrice) || Number.isNaN(quantity)) return;
     await addHolding({
       ticker: form.ticker.trim(),
@@ -77,6 +87,7 @@ export default function HoldingsEditor() {
       avgPrice,
       quantity,
       currentPrice: Number.isNaN(currentPrice) ? avgPrice : currentPrice,
+      purchaseFxRate: purchaseFxRate !== undefined && !Number.isNaN(purchaseFxRate) ? purchaseFxRate : undefined,
     });
     setForm(EMPTY_FORM);
   }
@@ -85,9 +96,24 @@ export default function HoldingsEditor() {
     return categories.find((c) => c.id === id)?.name ?? '-';
   }
 
+  const usdHoldings = holdings.filter((h) => h.currency === 'USD');
+
   return (
     <div className="card">
-      <h2 className="text-lg font-semibold mb-1">{t('title')}</h2>
+      <div className="flex items-center justify-between mb-1">
+        <h2 className="text-lg font-semibold">{t('title')}</h2>
+        <span className="text-xs text-gray-500">
+          {t('currentFxLabel')}:{' '}
+          {fx.loading
+            ? t('fxLoading')
+            : fx.rate
+              ? `1 USD = ${fx.rate.toLocaleString(undefined, { maximumFractionDigits: 2 })} KRW`
+              : `${t('fxError')} (${FALLBACK_USD_KRW_RATE.toLocaleString()})`}
+          <button type="button" className="ml-2 text-brand-600 hover:underline" onClick={fx.refresh}>
+            ↻
+          </button>
+        </span>
+      </div>
       <p className="text-sm text-gray-500 mb-4">{t('description')}</p>
 
       <div className="overflow-x-auto mb-5">
@@ -190,7 +216,7 @@ export default function HoldingsEditor() {
         <input
           type="number"
           className="input"
-          placeholder={t('avgPrice')}
+          placeholder={`${t('avgPrice')} (${form.currency})`}
           value={form.avgPrice}
           onChange={(e) => setForm((f) => ({ ...f, avgPrice: e.target.value }))}
         />
@@ -206,7 +232,7 @@ export default function HoldingsEditor() {
             <input
               type="number"
               className="input"
-              placeholder={t('currentPrice')}
+              placeholder={`${t('currentPrice')} (${form.currency})`}
               value={form.currentPrice}
               onChange={(e) => setForm((f) => ({ ...f, currentPrice: e.target.value }))}
             />
@@ -224,15 +250,81 @@ export default function HoldingsEditor() {
             <p className="mt-1 text-xs text-red-500">조회 실패 (티커 확인)</p>
           )}
         </div>
+        {form.currency === 'USD' && (
+          <input
+            type="number"
+            className="input"
+            placeholder={t('purchaseFxRate')}
+            value={form.purchaseFxRate}
+            onChange={(e) => setForm((f) => ({ ...f, purchaseFxRate: e.target.value }))}
+          />
+        )}
         <button type="button" className="btn-secondary" onClick={handleAdd}>
           {t('addHolding')}
         </button>
       </div>
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-gray-400 mb-2">
         티커나 종목명 중 하나만 입력해도(한글 초성 검색 가능) 목록에서 골라 자동완성할 수 있습니다. 목록에 없는
         종목은 직접 입력하면 됩니다. ↻ 버튼을 누르면 Yahoo Finance에서 현재가를 조회해 채워줍니다(목록에 없는
-        티커도 조회는 됩니다).
+        티커도 조회는 됩니다). 미국 종목은 매수가/현재가를 달러로 그대로 입력하시면 됩니다.
       </p>
+
+      {usdHoldings.length > 0 && (
+        <div className="mt-5 border-t border-gray-100 pt-4">
+          <h3 className="text-sm font-semibold mb-1">{t('fxSummaryTitle')}</h3>
+          <p className="text-xs text-gray-500 mb-3">{t('fxSummaryDescription')}</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr>
+                  <th className="table-cell">{t('ticker')}</th>
+                  <th className="table-cell">{t('colPurchaseFx')}</th>
+                  <th className="table-cell">{t('colCostKrw')}</th>
+                  <th className="table-cell">{t('colValueKrw')}</th>
+                  <th className="table-cell">{t('colPriceGain')}</th>
+                  <th className="table-cell">{t('colFxGain')}</th>
+                  <th className="table-cell">{t('colTotalGain')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {usdHoldings.map((h) => {
+                  const purchaseFx = h.purchaseFxRate ?? currentFxRate;
+                  const costKrw = h.avgPrice * h.quantity * purchaseFx;
+                  const valueKrw = h.currentPrice * h.quantity * currentFxRate;
+                  const priceGainKrw = (h.currentPrice - h.avgPrice) * h.quantity * currentFxRate;
+                  const fxGainKrw = h.avgPrice * h.quantity * (currentFxRate - purchaseFx);
+                  const totalGainKrw = valueKrw - costKrw;
+                  return (
+                    <tr key={h.id}>
+                      <td className="table-cell font-mono">
+                        {h.ticker} <span className="text-gray-400">({h.name})</span>
+                      </td>
+                      <td className="table-cell">{purchaseFx.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
+                      <td className="table-cell">{Math.round(costKrw).toLocaleString()}</td>
+                      <td className="table-cell">{Math.round(valueKrw).toLocaleString()}</td>
+                      <td className={`table-cell ${priceGainKrw >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                        {priceGainKrw >= 0 ? '+' : ''}
+                        {Math.round(priceGainKrw).toLocaleString()}
+                      </td>
+                      <td className={`table-cell ${fxGainKrw >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                        {fxGainKrw >= 0 ? '+' : ''}
+                        {Math.round(fxGainKrw).toLocaleString()}
+                      </td>
+                      <td className={`table-cell font-medium ${totalGainKrw >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                        {totalGainKrw >= 0 ? '+' : ''}
+                        {Math.round(totalGainKrw).toLocaleString()}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p className="text-xs text-gray-400 mt-2">
+            매입 시 환율을 입력하지 않은 종목은 현재 환율을 매입환율로 대신 사용해 환차익을 0으로 계산합니다.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
