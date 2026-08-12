@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useCategories, useHoldings, addHolding, updateHolding, removeHolding } from '@/lib/storage/hooks';
 import StockAutocomplete from './StockAutocomplete';
+import { fetchCurrentPrice } from '@/lib/market/quote';
 import type { StockEntry } from '@/lib/search/stockData';
 import type { Currency, Holding, Market } from '@/lib/rebalance/types';
 
@@ -18,12 +19,16 @@ const EMPTY_FORM = {
   currentPrice: '',
 };
 
+const NEW_ROW_KEY = '__new__';
+
 export default function HoldingsEditor() {
   const t = useTranslations('holdings');
   const tc = useTranslations('common');
   const categories = useCategories();
   const holdings = useHoldings();
   const [form, setForm] = useState(EMPTY_FORM);
+  const [refreshing, setRefreshing] = useState<Record<string, boolean>>({});
+  const [refreshError, setRefreshError] = useState<Record<string, boolean>>({});
 
   function onMarketChange(market: Market) {
     setForm((f) => ({ ...f, market, currency: market === 'KR' ? 'KRW' : 'USD' }));
@@ -31,6 +36,31 @@ export default function HoldingsEditor() {
 
   function applySelectedStock(entry: StockEntry) {
     setForm((f) => ({ ...f, ticker: entry.ticker, name: entry.name }));
+  }
+
+  async function refreshExistingPrice(h: Holding) {
+    setRefreshing((r) => ({ ...r, [h.id]: true }));
+    setRefreshError((e) => ({ ...e, [h.id]: false }));
+    const quote = await fetchCurrentPrice(h.ticker, h.market);
+    setRefreshing((r) => ({ ...r, [h.id]: false }));
+    if (!quote) {
+      setRefreshError((e) => ({ ...e, [h.id]: true }));
+      return;
+    }
+    await updateHolding({ ...h, currentPrice: quote.price });
+  }
+
+  async function refreshNewPrice() {
+    if (!form.ticker.trim()) return;
+    setRefreshing((r) => ({ ...r, [NEW_ROW_KEY]: true }));
+    setRefreshError((e) => ({ ...e, [NEW_ROW_KEY]: false }));
+    const quote = await fetchCurrentPrice(form.ticker, form.market);
+    setRefreshing((r) => ({ ...r, [NEW_ROW_KEY]: false }));
+    if (!quote) {
+      setRefreshError((e) => ({ ...e, [NEW_ROW_KEY]: true }));
+      return;
+    }
+    setForm((f) => ({ ...f, currentPrice: String(quote.price) }));
   }
 
   async function handleAdd() {
@@ -84,14 +114,28 @@ export default function HoldingsEditor() {
                 <td className="table-cell">{h.avgPrice.toLocaleString()}</td>
                 <td className="table-cell">{h.quantity.toLocaleString()}</td>
                 <td className="table-cell">
-                  <input
-                    type="number"
-                    className="input w-28"
-                    value={h.currentPrice}
-                    onChange={(e) =>
-                      updateHolding({ ...h, currentPrice: parseFloat(e.target.value) || 0 } as Holding)
-                    }
-                  />
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="number"
+                      className="input w-24"
+                      value={h.currentPrice}
+                      onChange={(e) =>
+                        updateHolding({ ...h, currentPrice: parseFloat(e.target.value) || 0 } as Holding)
+                      }
+                    />
+                    <button
+                      type="button"
+                      title={t('refreshPrice')}
+                      className="shrink-0 rounded-md border border-gray-300 px-2 py-1.5 text-xs text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                      disabled={!!refreshing[h.id]}
+                      onClick={() => refreshExistingPrice(h)}
+                    >
+                      {refreshing[h.id] ? '...' : '↻'}
+                    </button>
+                  </div>
+                  {refreshError[h.id] && (
+                    <p className="mt-1 text-xs text-red-500">조회 실패 (티커 확인)</p>
+                  )}
                 </td>
                 <td className="table-cell">
                   <button
@@ -157,19 +201,37 @@ export default function HoldingsEditor() {
           value={form.quantity}
           onChange={(e) => setForm((f) => ({ ...f, quantity: e.target.value }))}
         />
-        <input
-          type="number"
-          className="input"
-          placeholder={t('currentPrice')}
-          value={form.currentPrice}
-          onChange={(e) => setForm((f) => ({ ...f, currentPrice: e.target.value }))}
-        />
+        <div>
+          <div className="flex items-center gap-1.5">
+            <input
+              type="number"
+              className="input"
+              placeholder={t('currentPrice')}
+              value={form.currentPrice}
+              onChange={(e) => setForm((f) => ({ ...f, currentPrice: e.target.value }))}
+            />
+            <button
+              type="button"
+              title={t('refreshPrice')}
+              className="shrink-0 rounded-md border border-gray-300 px-2 py-2 text-xs text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+              disabled={!form.ticker.trim() || !!refreshing[NEW_ROW_KEY]}
+              onClick={refreshNewPrice}
+            >
+              {refreshing[NEW_ROW_KEY] ? '...' : '↻'}
+            </button>
+          </div>
+          {refreshError[NEW_ROW_KEY] && (
+            <p className="mt-1 text-xs text-red-500">조회 실패 (티커 확인)</p>
+          )}
+        </div>
         <button type="button" className="btn-secondary" onClick={handleAdd}>
           {t('addHolding')}
         </button>
       </div>
       <p className="text-xs text-gray-400">
-        티커나 종목명 중 하나만 입력해도(한글 초성 검색 가능) 목록에서 골라 자동완성할 수 있습니다. 목록에 없는 종목은 직접 입력하면 됩니다.
+        티커나 종목명 중 하나만 입력해도(한글 초성 검색 가능) 목록에서 골라 자동완성할 수 있습니다. 목록에 없는
+        종목은 직접 입력하면 됩니다. ↻ 버튼을 누르면 Yahoo Finance에서 현재가를 조회해 채워줍니다(목록에 없는
+        티커도 조회는 됩니다).
       </p>
     </div>
   );
