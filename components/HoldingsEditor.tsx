@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useCategories, useHoldings, addHolding, updateHolding, removeHolding } from '@/lib/storage/hooks';
+import StockAutocomplete from './StockAutocomplete';
+import type { StockEntry } from '@/lib/search/stockData';
 import type { Currency, Holding, Market } from '@/lib/rebalance/types';
 
 const EMPTY_FORM = {
@@ -25,6 +27,10 @@ export default function HoldingsEditor() {
 
   function onMarketChange(market: Market) {
     setForm((f) => ({ ...f, market, currency: market === 'KR' ? 'KRW' : 'USD' }));
+  }
+
+  function applySelectedStock(entry: StockEntry) {
+    setForm((f) => ({ ...f, ticker: entry.ticker, name: entry.name }));
   }
 
   async function handleAdd() {
@@ -102,7 +108,7 @@ export default function HoldingsEditor() {
         </table>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-2 items-start">
         <select
           className="input"
           value={form.market}
@@ -123,17 +129,19 @@ export default function HoldingsEditor() {
             </option>
           ))}
         </select>
-        <input
-          className="input"
-          placeholder={t('ticker')}
+        <StockAutocomplete
+          market={form.market}
           value={form.ticker}
-          onChange={(e) => setForm((f) => ({ ...f, ticker: e.target.value }))}
+          placeholder={t('ticker')}
+          onChange={(v) => setForm((f) => ({ ...f, ticker: v }))}
+          onSelect={applySelectedStock}
         />
-        <input
-          className="input"
-          placeholder={t('name')}
+        <StockAutocomplete
+          market={form.market}
           value={form.name}
-          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+          placeholder={t('name')}
+          onChange={(v) => setForm((f) => ({ ...f, name: v }))}
+          onSelect={applySelectedStock}
         />
         <input
           type="number"
@@ -160,6 +168,9 @@ export default function HoldingsEditor() {
           {t('addHolding')}
         </button>
       </div>
+      <p className="text-xs text-gray-400">
+        티커나 종목명 중 하나만 입력해도(한글 초성 검색 가능) 목록에서 골라 자동완성할 수 있습니다. 목록에 없는 종목은 직접 입력하면 됩니다.
+      </p>
     </div>
   );
 }
