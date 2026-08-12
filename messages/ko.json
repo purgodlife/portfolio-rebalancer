@@ -37,7 +37,7 @@
     "targetPercent": "목표 비중(%)",
     "addCategory": "카테고리 추가",
     "totalLabel": "합계",
-    "totalWarning": "비중 합계가 100%가 아닙니다."
+    "totalWarning": "비중 합계가 100.0%가 아닙니다. 정확히 100%로 맞춰야 리밸런싱 계산기를 사용할 수 있습니다."
   },
   "holdings": {
     "title": "보유종목",
@@ -72,7 +72,8 @@
     "buy": "매수",
     "sell": "매도",
     "noHoldings": "먼저 보유종목과 자산배분을 입력해주세요.",
-    "totalAfter": "리밸런싱 후 예상 비중"
+    "totalAfter": "리밸런싱 후 예상 비중",
+    "invalidAllocation": "자산배분 비중 합계가 100%가 아닙니다. 자산배분 설정 화면에서 합계를 100%로 맞춰야 계산할 수 있습니다."
   },
   "settings": {
     "title": "설정 및 백업",

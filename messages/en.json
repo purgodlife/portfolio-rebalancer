@@ -37,7 +37,7 @@
     "targetPercent": "Target weight (%)",
     "addCategory": "Add category",
     "totalLabel": "Total",
-    "totalWarning": "Weights do not add up to 100%."
+    "totalWarning": "Weights must add up to exactly 100% before you can use the rebalance calculator."
   },
   "holdings": {
     "title": "Holdings",
@@ -72,7 +72,8 @@
     "buy": "Buy",
     "sell": "Sell",
     "noHoldings": "Please set up holdings and allocation first.",
-    "totalAfter": "Projected weight after rebalancing"
+    "totalAfter": "Projected weight after rebalancing",
+    "invalidAllocation": "Your target allocation doesn't add up to 100% yet. Fix it on the Target Allocation screen before calculating."
   },
   "settings": {
     "title": "Settings & Backup",

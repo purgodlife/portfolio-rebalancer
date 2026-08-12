@@ -8,9 +8,11 @@ import type { Currency } from '@/lib/rebalance/types';
 
 // MVP 기본 환율 (사용자가 값을 직접 조정 가능). 이후 단계에서 Frankfurter.app 실시간 조회로 대체.
 const DEFAULT_USD_KRW = 1380;
+const TOLERANCE = 0.05;
 
 export default function RebalanceCalculator() {
   const t = useTranslations('calculator');
+  const ta = useTranslations('allocation');
   const categories = useCategories();
   const holdings = useHoldings();
 
@@ -19,10 +21,13 @@ export default function RebalanceCalculator() {
   const [allowSell, setAllowSell] = useState(false);
   const [usdKrwRate, setUsdKrwRate] = useState(String(DEFAULT_USD_KRW));
 
+  const totalPercent = categories.reduce((s, c) => s + c.targetPercent, 0);
+  const isAllocationValid = categories.length > 0 && Math.abs(totalPercent - 100) < TOLERANCE;
+
   const result = useMemo(() => {
     const amount = parseFloat(depositAmount);
     const rate = parseFloat(usdKrwRate);
-    if (Number.isNaN(amount) || Number.isNaN(rate) || categories.length === 0) return null;
+    if (Number.isNaN(amount) || Number.isNaN(rate) || !isAllocationValid) return null;
     return calculateRebalance({
       categories,
       holdings,
@@ -31,7 +36,7 @@ export default function RebalanceCalculator() {
       usdKrwRate: rate,
       allowSell,
     });
-  }, [categories, holdings, depositAmount, depositCurrency, usdKrwRate, allowSell]);
+  }, [categories, holdings, depositAmount, depositCurrency, usdKrwRate, allowSell, isAllocationValid]);
 
   const hasData = categories.length > 0 && holdings.length > 0;
 
@@ -82,11 +87,20 @@ export default function RebalanceCalculator() {
         </div>
       </div>
 
-      {!hasData && (
+      {categories.length > 0 && !isAllocationValid && (
+        <div className="card border-red-300 bg-red-50 text-red-600">
+          <p className="text-sm font-medium">{t('invalidAllocation')}</p>
+          <p className="text-xs mt-1 text-red-500">
+            {ta('totalLabel')}: {totalPercent.toFixed(1)}%
+          </p>
+        </div>
+      )}
+
+      {!hasData && isAllocationValid && (
         <div className="card text-sm text-gray-500">{t('noHoldings')}</div>
       )}
 
-      {hasData && result && (
+      {hasData && isAllocationValid && result && (
         <>
           <div className="card">
             <h3 className="font-semibold mb-3">{t('resultTitle')}</h3>
