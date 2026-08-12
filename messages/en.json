@@ -37,7 +37,7 @@
     "targetPercent": "Target weight (%)",
     "addCategory": "Add category",
     "totalLabel": "Total",
-    "totalWarning": "Weights do not add up to 100%."
+    "totalWarning": "Weights must add up to exactly 100% before you can use the rebalance calculator."
   },
   "holdings": {
     "title": "Holdings",
@@ -53,7 +53,19 @@
     "refreshPrice": "Refresh price",
     "addHolding": "Add holding",
     "marketKR": "Korea (KOSPI/KOSDAQ)",
-    "marketUS": "United States"
+    "marketUS": "United States",
+    "purchaseFxRate": "Exchange rate at purchase (USD/KRW)",
+    "currentFxLabel": "Current exchange rate",
+    "fxLoading": "Fetching exchange rate...",
+    "fxError": "Failed to fetch exchange rate (using fallback value)",
+    "fxSummaryTitle": "FX gain/loss on USD holdings",
+    "fxSummaryDescription": "Splits the KRW gain/loss into price movement and currency (FX) movement.",
+    "colPurchaseFx": "Purchase FX rate",
+    "colCostKrw": "Cost (KRW)",
+    "colValueKrw": "Value (KRW)",
+    "colPriceGain": "Price gain (KRW)",
+    "colFxGain": "FX gain (KRW)",
+    "colTotalGain": "Total gain (KRW)"
   },
   "calculator": {
     "title": "Rebalance Calculator",
@@ -72,7 +84,8 @@
     "buy": "Buy",
     "sell": "Sell",
     "noHoldings": "Please set up holdings and allocation first.",
-    "totalAfter": "Projected weight after rebalancing"
+    "totalAfter": "Projected weight after rebalancing",
+    "invalidAllocation": "Your target allocation doesn't add up to 100% yet. Fix it on the Target Allocation screen before calculating."
   },
   "settings": {
     "title": "Settings & Backup",

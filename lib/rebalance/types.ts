@@ -18,6 +18,11 @@ export interface Holding {
   avgPrice: number;
   quantity: number;
   currentPrice: number;
+  /**
+   * 매입 시점 USD/KRW 환율 (currency가 USD인 종목에만 의미가 있음).
+   * 원화 환산 손익을 주가 변동분과 환율 변동분(환차익)으로 나눠 보여주는 데 쓰인다.
+   */
+  purchaseFxRate?: number;
 }
 
 export interface RebalanceInput {

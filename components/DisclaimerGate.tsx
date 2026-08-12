@@ -6,7 +6,7 @@ import { useAppSettings, setDisclaimerAgreed, seedDefaultCategoriesIfEmpty } fro
 
 export default function DisclaimerGate({ children }: { children: ReactNode }) {
   const t = useTranslations('disclaimer');
-  const settings = useAppSettings();
+  const { settings, isLoading } = useAppSettings();
   const [checked, setChecked] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -15,8 +15,8 @@ export default function DisclaimerGate({ children }: { children: ReactNode }) {
     seedDefaultCategoriesIfEmpty();
   }, []);
 
-  // 아직 IndexedDB 조회가 끝나지 않았으면(첫 렌더) 깜빡임 방지를 위해 대기
-  if (!mounted || settings === undefined) {
+  // 아직 마운트 전이거나 IndexedDB 조회가 끝나지 않았으면(첫 렌더) 깜빡임 방지를 위해 대기
+  if (!mounted || isLoading) {
     return null;
   }
 
