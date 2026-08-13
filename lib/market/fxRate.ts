@@ -29,7 +29,7 @@ export function useUsdKrwRate(): UsdKrwRateState {
     setLoading(true);
     setError(false);
 
-    fetch('https://api.frankfurter.app/latest?from=USD&to=KRW')
+    fetch('https://api.frankfurter.dev/v1/latest?from=USD&to=KRW')
       .then((res) => {
         if (!res.ok) throw new Error('fx fetch failed');
         return res.json();
