@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useCategories, useHoldings } from '@/lib/storage/hooks';
 import { calculateRebalance } from '@/lib/rebalance';
 import { useUsdKrwRate, FALLBACK_USD_KRW_RATE } from '@/lib/market/fxRate';
+import { primaryLabel, secondaryLabel } from '@/lib/format/holdingLabel';
 import type { Currency } from '@/lib/rebalance/types';
 
 const TOLERANCE = 0.05;
@@ -166,8 +167,9 @@ export default function RebalanceCalculator() {
                     .filter((a) => a.action !== 'hold')
                     .map((a) => (
                       <tr key={a.holdingId}>
-                        <td className="table-cell font-mono">
-                          {a.ticker} <span className="text-gray-400">({a.name})</span>
+                        <td className="table-cell">
+                          <span className={a.market === 'KR' ? '' : 'font-mono'}>{primaryLabel(a)}</span>{' '}
+                          <span className="font-mono text-gray-400">({secondaryLabel(a)})</span>
                         </td>
                         <td className={`table-cell ${a.action === 'sell' ? 'text-red-600' : 'text-brand-600'}`}>
                           {a.action === 'buy' ? t('buy') : t('sell')}

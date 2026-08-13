@@ -7,6 +7,7 @@ import { useUsdKrwRate, FALLBACK_USD_KRW_RATE } from '@/lib/market/fxRate';
 import { groupHoldings, groupToHolding } from '@/lib/rebalance/grouping';
 import { computeStructuralRisk, type StructuralRiskItem } from '@/lib/risk/structural';
 import { evaluateGraham, type GrahamCheckKey } from '@/lib/risk/graham';
+import { primaryLabel, secondaryLabel } from '@/lib/format/holdingLabel';
 import { fetchFundamentals, type Fundamentals } from '@/lib/market/fundamentals';
 import TickerLogo from './TickerLogo';
 
@@ -111,7 +112,10 @@ export default function RiskDashboard() {
                       <td className="table-cell">
                         <div className="flex items-center gap-2">
                           <TickerLogo ticker={h.ticker} size={20} />
-                          <span className="font-mono">{h.ticker}</span>
+                          <div>
+                            <div className={h.market === 'KR' ? '' : 'font-mono'}>{primaryLabel(h)}</div>
+                            <div className="font-mono text-xs text-gray-400">{secondaryLabel(h)}</div>
+                          </div>
                         </div>
                       </td>
                       {CHECK_COLUMNS.map((ck) => {

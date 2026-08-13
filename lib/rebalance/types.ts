@@ -51,6 +51,7 @@ export interface HoldingAction {
   ticker: string;
   name: string;
   categoryId: string;
+  market: Market;
   currency: Currency;
   action: 'buy' | 'sell' | 'hold';
   /** always >= 0, in the holding's own currency */
