@@ -1,7 +1,7 @@
 'use client';
 
 import { useLiveQuery } from 'dexie-react-hooks';
-import { getDb, type AppSettings } from './db';
+import { getDb, type AppSettings, type PortfolioSnapshot } from './db';
 import type { Category, Holding } from '@/lib/rebalance/types';
 
 function uid(prefix: string): string {
@@ -57,8 +57,8 @@ export async function removeCategory(id: string): Promise<void> {
   });
 }
 
-export async function addHolding(holding: Omit<Holding, 'id'>): Promise<void> {
-  await getDb().holdings.add({ ...holding, id: uid('hold') });
+export async function addHolding(holding: Omit<Holding, 'id' | 'createdAt'>): Promise<void> {
+  await getDb().holdings.add({ ...holding, id: uid('hold'), createdAt: Date.now() });
 }
 
 export async function updateHolding(holding: Holding): Promise<void> {
@@ -84,4 +84,17 @@ export async function seedDefaultCategoriesIfEmpty(): Promise<void> {
   await db.categories.bulkAdd(
     DEFAULT_CATEGORIES.map((c) => ({ ...c, id: uid('cat') }))
   );
+}
+
+/**
+ * 월별 자산추이 화면에서 쓰는 일별 스냅샷(하루 1건, 같은 날 다시 방문하면 최신값으로 덮어씀).
+ * 과거 시세 데이터를 별도로 구하지 않고, 방문할 때마다 "그 시점의 평가금액"을 그대로 남겨서
+ * 시간이 지나며 자연스럽게 추이가 쌓이게 한다.
+ */
+export function useSnapshots(): PortfolioSnapshot[] {
+  return useLiveQuery(() => getDb().snapshots.orderBy('date').toArray(), [], []) ?? [];
+}
+
+export async function upsertSnapshot(snapshot: PortfolioSnapshot): Promise<void> {
+  await getDb().snapshots.put(snapshot);
 }

@@ -30,6 +30,8 @@ export interface Holding {
    * 이 필드로 개별 매수/매도 내역을 구분해서 펼쳐볼 수 있다.
    */
   lotType?: LotType;
+  /** 이 기록이 입력된 시각(ms). 거래내역 화면에서 시간순 정렬에 쓰인다. */
+  createdAt?: number;
 }
 
 export interface RebalanceInput {

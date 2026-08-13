@@ -1,3 +1,4 @@
+import { lotCreatedAt } from './lotTime';
 import type { Holding, Market } from './types';
 
 /**
@@ -30,11 +31,7 @@ function groupKey(h: Pick<Holding, 'ticker' | 'market'>): string {
   return `${h.market}:${h.ticker.trim().toUpperCase()}`;
 }
 
-/** Holding.id는 `hold-<timestamp>-<random>` 형태로 생성되므로, 그 안의 타임스탬프로 입력 순서를 매긴다. */
-function lotTimestamp(h: Holding): number {
-  const match = /^hold-(\d+)-/.exec(h.id);
-  return match ? Number(match[1]) : 0;
-}
+
 
 export function groupHoldings(holdings: Holding[]): HoldingGroup[] {
   const byKey = new Map<string, Holding[]>();
@@ -47,7 +44,7 @@ export function groupHoldings(holdings: Holding[]): HoldingGroup[] {
 
   const groups: HoldingGroup[] = [];
   for (const [key, lots] of byKey) {
-    const sorted = [...lots].sort((a, b) => lotTimestamp(a) - lotTimestamp(b));
+    const sorted = [...lots].sort((a, b) => lotCreatedAt(a) - lotCreatedAt(b));
     const buyLots = sorted.filter((l) => (l.lotType ?? 'buy') === 'buy');
     const sellLots = sorted.filter((l) => l.lotType === 'sell');
 

@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { useAppSettings, setDisclaimerAgreed, seedDefaultCategoriesIfEmpty } from '@/lib/storage/hooks';
+import PortfolioSnapshotter from './PortfolioSnapshotter';
 
 export default function DisclaimerGate({ children }: { children: ReactNode }) {
   const t = useTranslations('disclaimer');
@@ -21,7 +22,12 @@ export default function DisclaimerGate({ children }: { children: ReactNode }) {
   }
 
   if (settings?.hasAgreedToDisclaimer) {
-    return <>{children}</>;
+    return (
+      <>
+        <PortfolioSnapshotter />
+        {children}
+      </>
+    );
   }
 
   return (

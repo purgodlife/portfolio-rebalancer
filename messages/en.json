@@ -18,7 +18,9 @@
     "watchlist": "Watchlist",
     "checklist": "Graham Checklist",
     "settings": "Settings / Backup",
-    "disclaimer": "Terms"
+    "disclaimer": "Terms",
+    "history": "History",
+    "trend": "Trend"
   },
   "disclaimer": {
     "title": "Please review before using this app",
@@ -113,5 +115,21 @@
     "importJson": "Import JSON",
     "importWarning": "Importing will overwrite your currently saved data.",
     "language": "Language"
+  },
+  "history": {
+    "title": "Transaction History",
+    "description": "All buy/sell records across every holding, newest first. Same underlying data you can expand per ticker on the Holdings screen.",
+    "empty": "No buy/sell records yet.",
+    "date": "Date",
+    "type": "Type",
+    "totalAmount": "Total amount"
+  },
+  "trend": {
+    "title": "Monthly Asset Trend",
+    "description": "Automatically records today's total portfolio value each time you use the app, building a monthly trend over time. It only starts accumulating from today onward, since no historical price data is fetched.",
+    "empty": "No snapshots yet. Once you enter holdings and come back over the following days/months, a trend will appear here.",
+    "onlyOneNote": "Only one month of data so far — this is just the current value, not yet a trend. It will fill in over time.",
+    "month": "Month",
+    "totalValue": "Total value"
   }
 }

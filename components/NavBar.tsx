@@ -12,6 +12,8 @@ export default function NavBar() {
     { href: '/', label: t('dashboard') },
     { href: '/allocation', label: t('allocation') },
     { href: '/holdings', label: t('holdings') },
+    { href: '/history', label: t('history') },
+    { href: '/trend', label: t('trend') },
     { href: '/disclaimer', label: t('disclaimer') },
   ];
 
