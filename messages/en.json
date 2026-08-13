@@ -65,7 +65,22 @@
     "colValueKrw": "Value (KRW)",
     "colPriceGain": "Price gain (KRW)",
     "colFxGain": "FX gain (KRW)",
-    "colTotalGain": "Total gain (KRW)"
+    "colTotalGain": "Total gain (KRW)",
+    "buyLot": "Buy",
+    "sellLot": "Sell",
+    "netQuantity": "Net quantity",
+    "avgBuyPrice": "Avg. buy price",
+    "addBuyLot": "+ Add buy",
+    "addSellLot": "+ Add sell",
+    "evalAmount": "Value",
+    "gain": "Gain/loss",
+    "cancel": "Cancel",
+    "confirm": "Add",
+    "lotType": "Type",
+    "lotPrice": "Price",
+    "sellExceedsHolding": "Cannot sell more than you currently hold.",
+    "groupedHint": "Adding the same ticker again merges it automatically. Click a row to expand and view or edit individual buy/sell records.",
+    "noLotsYet": "No buy records yet."
   },
   "calculator": {
     "title": "Rebalance Calculator",
@@ -85,7 +100,11 @@
     "sell": "Sell",
     "noHoldings": "Please set up holdings and allocation first.",
     "totalAfter": "Projected weight after rebalancing",
-    "invalidAllocation": "Your target allocation doesn't add up to 100% yet. Fix it on the Target Allocation screen before calculating."
+    "invalidAllocation": "Your target allocation doesn't add up to 100% yet. Fix it on the Target Allocation screen before calculating.",
+    "colQuantity": "Quantity",
+    "sellQuantityNote": "Sell quantities are whole shares chosen to get as close as possible to the target amount (may not match exactly).",
+    "approxSharesPrefix": "≈",
+    "sharesUnit": "sh"
   },
   "settings": {
     "title": "Settings & Backup",

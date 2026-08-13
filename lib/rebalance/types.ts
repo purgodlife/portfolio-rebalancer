@@ -1,5 +1,6 @@
 export type Market = 'KR' | 'US';
 export type Currency = 'KRW' | 'USD';
+export type LotType = 'buy' | 'sell';
 
 export interface Category {
   id: string;
@@ -23,6 +24,12 @@ export interface Holding {
    * 원화 환산 손익을 주가 변동분과 환율 변동분(환차익)으로 나눠 보여주는 데 쓰인다.
    */
   purchaseFxRate?: number;
+  /**
+   * 이 기록이 매수 내역인지 매도 내역인지 (기본값 'buy', 과거 데이터 호환용).
+   * 같은 티커+시장으로 여러 번 입력하면 자동으로 하나의 종목으로 합산되고,
+   * 이 필드로 개별 매수/매도 내역을 구분해서 펼쳐볼 수 있다.
+   */
+  lotType?: LotType;
 }
 
 export interface RebalanceInput {
@@ -48,7 +55,10 @@ export interface HoldingAction {
   amountInHoldingCurrency: number;
   /** always >= 0, in KRW base currency */
   amountInBaseCurrency: number;
-  /** rough reference share count at current price; not rounded to lots */
+  /**
+   * 매수(buy)는 목표 금액을 현재가로 나눈 참고용 소수 수량(≈)이고,
+   * 매도(sell)는 목표 금액에 가장 가깝게 맞춘 실제 정수 매도 수량이다.
+   */
   approxShares: number;
 }
 

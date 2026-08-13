@@ -158,7 +158,7 @@ export default function RebalanceCalculator() {
                     <th className="table-cell">{t('colTicker')}</th>
                     <th className="table-cell">{t('colAction')}</th>
                     <th className="table-cell">{t('colAmount')}</th>
-                    <th className="table-cell">≈ 수량</th>
+                    <th className="table-cell">{t('colQuantity')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -169,16 +169,25 @@ export default function RebalanceCalculator() {
                         <td className="table-cell font-mono">
                           {a.ticker} <span className="text-gray-400">({a.name})</span>
                         </td>
-                        <td className="table-cell">{a.action === 'buy' ? t('buy') : t('sell')}</td>
+                        <td className={`table-cell ${a.action === 'sell' ? 'text-red-600' : 'text-brand-600'}`}>
+                          {a.action === 'buy' ? t('buy') : t('sell')}
+                        </td>
                         <td className="table-cell">
                           {Math.round(a.amountInHoldingCurrency).toLocaleString()} {a.currency}
                         </td>
-                        <td className="table-cell">{a.approxShares.toFixed(2)}</td>
+                        <td className="table-cell">
+                          {a.action === 'sell'
+                            ? `${a.approxShares.toLocaleString()}${t('sharesUnit')}`
+                            : `${t('approxSharesPrefix')} ${a.approxShares.toFixed(2)}`}
+                        </td>
                       </tr>
                     ))}
                 </tbody>
               </table>
             </div>
+            {result.actions.some((a) => a.action === 'sell') && (
+              <p className="text-xs text-gray-400 mt-3">{t('sellQuantityNote')}</p>
+            )}
           </div>
         </>
       )}

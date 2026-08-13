@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useCategories, useHoldings, addHolding, updateHolding, removeHolding } from '@/lib/storage/hooks';
 import StockAutocomplete from './StockAutocomplete';
 import { fetchCurrentPrice } from '@/lib/market/quote';
 import { useUsdKrwRate, FALLBACK_USD_KRW_RATE } from '@/lib/market/fxRate';
+import { groupHoldings, type HoldingGroup } from '@/lib/rebalance/grouping';
 import type { StockEntry } from '@/lib/search/stockData';
-import type { Currency, Holding, Market } from '@/lib/rebalance/types';
+import type { Currency, LotType, Market } from '@/lib/rebalance/types';
 
 const EMPTY_FORM = {
   ticker: '',
@@ -21,6 +22,12 @@ const EMPTY_FORM = {
   purchaseFxRate: '',
 };
 
+const EMPTY_LOT_FORM = {
+  avgPrice: '',
+  quantity: '',
+  purchaseFxRate: '',
+};
+
 const NEW_ROW_KEY = '__new__';
 
 export default function HoldingsEditor() {
@@ -31,8 +38,14 @@ export default function HoldingsEditor() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [refreshing, setRefreshing] = useState<Record<string, boolean>>({});
   const [refreshError, setRefreshError] = useState<Record<string, boolean>>({});
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [lotForm, setLotForm] = useState<{ groupKey: string; type: LotType } | null>(null);
+  const [lotFormValues, setLotFormValues] = useState(EMPTY_LOT_FORM);
+  const [lotFormError, setLotFormError] = useState<string | null>(null);
   const fx = useUsdKrwRate();
   const currentFxRate = fx.rate ?? FALLBACK_USD_KRW_RATE;
+
+  const groups = groupHoldings(holdings);
 
   function onMarketChange(market: Market) {
     setForm((f) => ({
@@ -47,16 +60,68 @@ export default function HoldingsEditor() {
     setForm((f) => ({ ...f, ticker: entry.ticker, name: entry.name }));
   }
 
-  async function refreshExistingPrice(h: Holding) {
-    setRefreshing((r) => ({ ...r, [h.id]: true }));
-    setRefreshError((e) => ({ ...e, [h.id]: false }));
-    const quote = await fetchCurrentPrice(h.ticker, h.market);
-    setRefreshing((r) => ({ ...r, [h.id]: false }));
-    if (!quote) {
-      setRefreshError((e) => ({ ...e, [h.id]: true }));
+  function toggleExpand(key: string) {
+    setExpanded((e) => ({ ...e, [key]: !e[key] }));
+  }
+
+  function openLotForm(group: HoldingGroup, type: LotType) {
+    setExpanded((e) => ({ ...e, [group.key]: true }));
+    setLotFormError(null);
+    setLotFormValues({
+      ...EMPTY_LOT_FORM,
+      purchaseFxRate: group.currency === 'USD' ? String(fx.rate ?? group.avgPurchaseFxRate ?? FALLBACK_USD_KRW_RATE) : '',
+    });
+    setLotForm({ groupKey: group.key, type });
+  }
+
+  function closeLotForm() {
+    setLotForm(null);
+    setLotFormError(null);
+    setLotFormValues(EMPTY_LOT_FORM);
+  }
+
+  async function submitLotForm(group: HoldingGroup) {
+    if (!lotForm) return;
+    const avgPrice = parseFloat(lotFormValues.avgPrice);
+    const quantity = parseFloat(lotFormValues.quantity);
+    if (Number.isNaN(avgPrice) || Number.isNaN(quantity) || quantity <= 0) return;
+    if (lotForm.type === 'sell' && quantity > group.netQuantity) {
+      setLotFormError(`${t('sellExceedsHolding')} (${group.netQuantity.toLocaleString()})`);
       return;
     }
-    await updateHolding({ ...h, currentPrice: quote.price });
+    const purchaseFxRate = group.currency === 'USD' ? parseFloat(lotFormValues.purchaseFxRate) : undefined;
+    await addHolding({
+      ticker: group.ticker,
+      name: group.name,
+      categoryId: group.categoryId,
+      market: group.market,
+      currency: group.currency,
+      avgPrice,
+      quantity,
+      currentPrice: group.currentPrice,
+      purchaseFxRate: purchaseFxRate !== undefined && !Number.isNaN(purchaseFxRate) ? purchaseFxRate : undefined,
+      lotType: lotForm.type,
+    });
+    closeLotForm();
+  }
+
+  async function refreshGroupPrice(group: HoldingGroup) {
+    const key = `group:${group.key}`;
+    setRefreshing((r) => ({ ...r, [key]: true }));
+    setRefreshError((e) => ({ ...e, [key]: false }));
+    const quote = await fetchCurrentPrice(group.ticker, group.market);
+    setRefreshing((r) => ({ ...r, [key]: false }));
+    if (!quote) {
+      setRefreshError((e) => ({ ...e, [key]: true }));
+      return;
+    }
+    await Promise.all(group.lots.map((lot) => updateHolding({ ...lot, currentPrice: quote.price })));
+  }
+
+  async function setGroupCurrentPrice(group: HoldingGroup, value: string) {
+    const price = parseFloat(value);
+    if (Number.isNaN(price)) return;
+    await Promise.all(group.lots.map((lot) => updateHolding({ ...lot, currentPrice: price })));
   }
 
   async function refreshNewPrice() {
@@ -88,6 +153,7 @@ export default function HoldingsEditor() {
       quantity,
       currentPrice: Number.isNaN(currentPrice) ? avgPrice : currentPrice,
       purchaseFxRate: purchaseFxRate !== undefined && !Number.isNaN(purchaseFxRate) ? purchaseFxRate : undefined,
+      lotType: 'buy',
     });
     setForm(EMPTY_FORM);
   }
@@ -96,7 +162,7 @@ export default function HoldingsEditor() {
     return categories.find((c) => c.id === id)?.name ?? '-';
   }
 
-  const usdHoldings = holdings.filter((h) => h.currency === 'USD');
+  const usdGroups = groups.filter((g) => g.currency === 'USD' && g.netQuantity > 0);
 
   return (
     <div className="card">
@@ -114,66 +180,171 @@ export default function HoldingsEditor() {
           </button>
         </span>
       </div>
-      <p className="text-sm text-gray-500 mb-4">{t('description')}</p>
+      <p className="text-sm text-gray-500 mb-1">{t('description')}</p>
+      <p className="text-xs text-gray-400 mb-4">{t('groupedHint')}</p>
 
       <div className="overflow-x-auto mb-5">
         <table className="w-full text-left">
           <thead>
             <tr>
+              <th className="table-cell" />
               <th className="table-cell">{t('ticker')}</th>
               <th className="table-cell">{t('name')}</th>
               <th className="table-cell">{t('category')}</th>
               <th className="table-cell">{t('currency')}</th>
-              <th className="table-cell">{t('avgPrice')}</th>
-              <th className="table-cell">{t('quantity')}</th>
+              <th className="table-cell">{t('avgBuyPrice')}</th>
+              <th className="table-cell">{t('netQuantity')}</th>
               <th className="table-cell">{t('currentPrice')}</th>
+              <th className="table-cell">{t('evalAmount')}</th>
+              <th className="table-cell">{t('gain')}</th>
               <th className="table-cell" />
             </tr>
           </thead>
           <tbody>
-            {holdings.map((h) => (
-              <tr key={h.id}>
-                <td className="table-cell font-mono">{h.ticker}</td>
-                <td className="table-cell">{h.name}</td>
-                <td className="table-cell">{categoryName(h.categoryId)}</td>
-                <td className="table-cell">{h.currency}</td>
-                <td className="table-cell">{h.avgPrice.toLocaleString()}</td>
-                <td className="table-cell">{h.quantity.toLocaleString()}</td>
-                <td className="table-cell">
-                  <div className="flex items-center gap-1.5">
-                    <input
-                      type="number"
-                      className="input w-24"
-                      value={h.currentPrice}
-                      onChange={(e) =>
-                        updateHolding({ ...h, currentPrice: parseFloat(e.target.value) || 0 } as Holding)
-                      }
-                    />
-                    <button
-                      type="button"
-                      title={t('refreshPrice')}
-                      className="shrink-0 rounded-md border border-gray-300 px-2 py-1.5 text-xs text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                      disabled={!!refreshing[h.id]}
-                      onClick={() => refreshExistingPrice(h)}
-                    >
-                      {refreshing[h.id] ? '...' : '↻'}
-                    </button>
-                  </div>
-                  {refreshError[h.id] && (
-                    <p className="mt-1 text-xs text-red-500">조회 실패 (티커 확인)</p>
+            {groups.map((g) => {
+              const evalAmount = g.currentPrice * g.netQuantity;
+              const gain = (g.currentPrice - g.avgBuyPrice) * g.netQuantity;
+              const isOpen = !!expanded[g.key];
+              const refreshKey = `group:${g.key}`;
+              return (
+                <Fragment key={g.key}>
+                  <tr className="cursor-pointer hover:bg-gray-50" onClick={() => toggleExpand(g.key)}>
+                    <td className="table-cell text-gray-400 select-none">{isOpen ? '▾' : '▸'}</td>
+                    <td className="table-cell font-mono">{g.ticker}</td>
+                    <td className="table-cell">{g.name}</td>
+                    <td className="table-cell">{categoryName(g.categoryId)}</td>
+                    <td className="table-cell">{g.currency}</td>
+                    <td className="table-cell">
+                      {g.avgBuyPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    </td>
+                    <td className="table-cell">{g.netQuantity.toLocaleString()}</td>
+                    <td className="table-cell" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="number"
+                          className="input w-24"
+                          value={g.currentPrice}
+                          onChange={(e) => setGroupCurrentPrice(g, e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          title={t('refreshPrice')}
+                          className="shrink-0 rounded-md border border-gray-300 px-2 py-1.5 text-xs text-gray-500 hover:bg-gray-50 disabled:opacity-50"
+                          disabled={!!refreshing[refreshKey]}
+                          onClick={() => refreshGroupPrice(g)}
+                        >
+                          {refreshing[refreshKey] ? '...' : '↻'}
+                        </button>
+                      </div>
+                      {refreshError[refreshKey] && (
+                        <p className="mt-1 text-xs text-red-500">조회 실패 (티커 확인)</p>
+                      )}
+                    </td>
+                    <td className="table-cell">{Math.round(evalAmount).toLocaleString()}</td>
+                    <td className={`table-cell font-medium ${gain >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                      {gain >= 0 ? '+' : ''}
+                      {Math.round(gain).toLocaleString()}
+                    </td>
+                    <td className="table-cell" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex gap-2 text-xs whitespace-nowrap">
+                        <button type="button" className="text-brand-600 hover:underline" onClick={() => openLotForm(g, 'buy')}>
+                          {t('addBuyLot')}
+                        </button>
+                        <button type="button" className="text-red-500 hover:underline" onClick={() => openLotForm(g, 'sell')}>
+                          {t('addSellLot')}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  {isOpen && (
+                    <tr>
+                      <td className="table-cell bg-gray-50 align-top" colSpan={11}>
+                        <div className="pl-6 py-1 space-y-1">
+                          {g.lots.length === 0 && <p className="text-xs text-gray-400">{t('noLotsYet')}</p>}
+                          {g.lots.map((lot) => {
+                            const type = lot.lotType ?? 'buy';
+                            return (
+                              <div
+                                key={lot.id}
+                                className="flex flex-wrap items-center gap-3 text-xs py-1.5 border-b border-gray-100 last:border-0"
+                              >
+                                <span
+                                  className={`shrink-0 rounded px-1.5 py-0.5 font-medium ${
+                                    type === 'sell' ? 'bg-red-50 text-red-600' : 'bg-brand-50 text-brand-700'
+                                  }`}
+                                >
+                                  {type === 'sell' ? t('sellLot') : t('buyLot')}
+                                </span>
+                                <span className="text-gray-600">
+                                  {t('lotPrice')} {lot.avgPrice.toLocaleString()} {lot.currency}
+                                </span>
+                                <span className="text-gray-600">
+                                  {t('quantity')} {lot.quantity.toLocaleString()}
+                                </span>
+                                {lot.currency === 'USD' && lot.purchaseFxRate !== undefined && (
+                                  <span className="text-gray-400">
+                                    {t('purchaseFxRate')} {lot.purchaseFxRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                  </span>
+                                )}
+                                <button
+                                  type="button"
+                                  className="ml-auto shrink-0 text-red-400 hover:text-red-600"
+                                  onClick={() => removeHolding(lot.id)}
+                                >
+                                  {tc('delete')}
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {lotForm?.groupKey === g.key && (
+                          <div className="mt-2 ml-6 flex flex-wrap items-end gap-2 rounded-md border border-gray-200 bg-white p-3">
+                            <span
+                              className={`text-xs font-medium px-1.5 py-1 rounded ${
+                                lotForm.type === 'sell' ? 'bg-red-50 text-red-600' : 'bg-brand-50 text-brand-700'
+                              }`}
+                            >
+                              {lotForm.type === 'sell' ? t('sellLot') : t('buyLot')}
+                            </span>
+                            <input
+                              type="number"
+                              className="input w-32"
+                              placeholder={`${t('lotPrice')} (${g.currency})`}
+                              value={lotFormValues.avgPrice}
+                              onChange={(e) => setLotFormValues((v) => ({ ...v, avgPrice: e.target.value }))}
+                            />
+                            <input
+                              type="number"
+                              className="input w-24"
+                              placeholder={t('quantity')}
+                              value={lotFormValues.quantity}
+                              onChange={(e) => setLotFormValues((v) => ({ ...v, quantity: e.target.value }))}
+                            />
+                            {g.currency === 'USD' && (
+                              <input
+                                type="number"
+                                className="input w-32"
+                                placeholder={t('purchaseFxRate')}
+                                value={lotFormValues.purchaseFxRate}
+                                onChange={(e) => setLotFormValues((v) => ({ ...v, purchaseFxRate: e.target.value }))}
+                              />
+                            )}
+                            <button type="button" className="btn-secondary text-xs" onClick={() => submitLotForm(g)}>
+                              {t('confirm')}
+                            </button>
+                            <button type="button" className="text-xs text-gray-500 hover:underline" onClick={closeLotForm}>
+                              {t('cancel')}
+                            </button>
+                            {lotFormError && <p className="w-full text-xs text-red-500">{lotFormError}</p>}
+                          </div>
+                        )}
+                      </td>
+                    </tr>
                   )}
-                </td>
-                <td className="table-cell">
-                  <button
-                    type="button"
-                    className="text-sm text-red-500 hover:text-red-700"
-                    onClick={() => removeHolding(h.id)}
-                  >
-                    {tc('delete')}
-                  </button>
-                </td>
-              </tr>
-            ))}
+                </Fragment>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -266,10 +437,11 @@ export default function HoldingsEditor() {
       <p className="text-xs text-gray-400 mb-2">
         티커나 종목명 중 하나만 입력해도(한글 초성 검색 가능) 목록에서 골라 자동완성할 수 있습니다. 목록에 없는
         종목은 직접 입력하면 됩니다. ↻ 버튼을 누르면 Yahoo Finance에서 현재가를 조회해 채워줍니다(목록에 없는
-        티커도 조회는 됩니다). 미국 종목은 매수가/현재가를 달러로 그대로 입력하시면 됩니다.
+        티커도 조회는 됩니다). 미국 종목은 매수가/현재가를 달러로 그대로 입력하시면 됩니다. 이미 있는 종목을 또
+        추가하면 별도 행이 아니라 위 표에서 자동으로 합산됩니다.
       </p>
 
-      {usdHoldings.length > 0 && (
+      {usdGroups.length > 0 && (
         <div className="mt-5 border-t border-gray-100 pt-4">
           <h3 className="text-sm font-semibold mb-1">{t('fxSummaryTitle')}</h3>
           <p className="text-xs text-gray-500 mb-3">{t('fxSummaryDescription')}</p>
@@ -287,17 +459,17 @@ export default function HoldingsEditor() {
                 </tr>
               </thead>
               <tbody>
-                {usdHoldings.map((h) => {
-                  const purchaseFx = h.purchaseFxRate ?? currentFxRate;
-                  const costKrw = h.avgPrice * h.quantity * purchaseFx;
-                  const valueKrw = h.currentPrice * h.quantity * currentFxRate;
-                  const priceGainKrw = (h.currentPrice - h.avgPrice) * h.quantity * currentFxRate;
-                  const fxGainKrw = h.avgPrice * h.quantity * (currentFxRate - purchaseFx);
+                {usdGroups.map((g) => {
+                  const purchaseFx = g.avgPurchaseFxRate ?? currentFxRate;
+                  const costKrw = g.avgBuyPrice * g.netQuantity * purchaseFx;
+                  const valueKrw = g.currentPrice * g.netQuantity * currentFxRate;
+                  const priceGainKrw = (g.currentPrice - g.avgBuyPrice) * g.netQuantity * currentFxRate;
+                  const fxGainKrw = g.avgBuyPrice * g.netQuantity * (currentFxRate - purchaseFx);
                   const totalGainKrw = valueKrw - costKrw;
                   return (
-                    <tr key={h.id}>
+                    <tr key={g.key}>
                       <td className="table-cell font-mono">
-                        {h.ticker} <span className="text-gray-400">({h.name})</span>
+                        {g.ticker} <span className="text-gray-400">({g.name})</span>
                       </td>
                       <td className="table-cell">{purchaseFx.toLocaleString(undefined, { maximumFractionDigits: 2 })}</td>
                       <td className="table-cell">{Math.round(costKrw).toLocaleString()}</td>

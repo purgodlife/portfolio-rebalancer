@@ -65,7 +65,22 @@
     "colValueKrw": "평가금액(KRW)",
     "colPriceGain": "주가손익(KRW)",
     "colFxGain": "환차익(KRW)",
-    "colTotalGain": "총손익(KRW)"
+    "colTotalGain": "총손익(KRW)",
+    "buyLot": "매수",
+    "sellLot": "매도",
+    "netQuantity": "순보유수량",
+    "avgBuyPrice": "평단가",
+    "addBuyLot": "+ 매수 추가",
+    "addSellLot": "+ 매도 추가",
+    "evalAmount": "평가금액",
+    "gain": "손익",
+    "cancel": "취소",
+    "confirm": "추가",
+    "lotType": "구분",
+    "lotPrice": "단가",
+    "sellExceedsHolding": "보유 수량보다 많이 팔 수 없습니다.",
+    "groupedHint": "같은 종목을 다시 추가하면 자동으로 합산됩니다. 종목명을 눌러 펼치면 개별 매수·매도 내역을 확인·수정할 수 있습니다.",
+    "noLotsYet": "매수 내역이 없습니다."
   },
   "calculator": {
     "title": "리밸런싱 계산기",
@@ -85,7 +100,11 @@
     "sell": "매도",
     "noHoldings": "먼저 보유종목과 자산배분을 입력해주세요.",
     "totalAfter": "리밸런싱 후 예상 비중",
-    "invalidAllocation": "자산배분 비중 합계가 100%가 아닙니다. 자산배분 설정 화면에서 합계를 100%로 맞춰야 계산할 수 있습니다."
+    "invalidAllocation": "자산배분 비중 합계가 100%가 아닙니다. 자산배분 설정 화면에서 합계를 100%로 맞춰야 계산할 수 있습니다.",
+    "colQuantity": "수량",
+    "sellQuantityNote": "매도 수량은 목표 금액에 가장 가깝게 맞춘 정수 주식수입니다(정확히 일치하지 않을 수 있습니다).",
+    "approxSharesPrefix": "≈",
+    "sharesUnit": "주"
   },
   "settings": {
     "title": "설정 및 백업",

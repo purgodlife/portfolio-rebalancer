@@ -82,7 +82,7 @@ describe('calculateRebalance - sell allowed', () => {
     expect(result.unallocatedCashBase).toBeCloseTo(0, 4);
   });
 
-  it('sums of buy/sell actions roughly match category diffs', () => {
+  it('sums of buy actions match category diffs exactly, sell actions get as close as whole shares allow', () => {
     const result = calculateRebalance({
       categories,
       holdings,
@@ -98,7 +98,38 @@ describe('calculateRebalance - sell allowed', () => {
         (s, a) => s + (a.action === 'sell' ? -a.amountInBaseCurrency : a.amountInBaseCurrency),
         0
       );
-      expect(net).toBeCloseTo(c.diffBase, 0);
+      if (c.diffBase >= 0) {
+        // 매수는 지금도 연속값으로 정확히 목표와 일치해야 한다.
+        expect(net).toBeCloseTo(c.diffBase, 0);
+      } else {
+        // 매도는 정수 주 단위라 정확히 맞을 수 없다 — 그 카테고리에서 가장 비싼
+        // 1주 가치 범위 안에서만 목표와 벌어져야 한다("최대한 가깝게").
+        const hs = holdings.filter((h) => h.categoryId === c.categoryId);
+        const maxShareValueBase = Math.max(
+          0,
+          ...hs.map((h) => (h.currency === 'USD' ? h.currentPrice * usdKrwRate : h.currentPrice))
+        );
+        expect(Math.abs(net - c.diffBase)).toBeLessThanOrEqual(maxShareValueBase + 1);
+      }
+    }
+  });
+
+  it('recommends whole-share sell quantities that never exceed what is held', () => {
+    const result = calculateRebalance({
+      categories,
+      holdings,
+      depositAmount: 500000,
+      depositCurrency: 'KRW',
+      usdKrwRate,
+      allowSell: true,
+    });
+    const heldQtyByTicker = new Map(holdings.map((h) => [h.ticker, h.quantity]));
+    for (const a of result.actions) {
+      if (a.action === 'sell') {
+        expect(Number.isInteger(a.approxShares)).toBe(true);
+        expect(a.approxShares).toBeGreaterThan(0);
+        expect(a.approxShares).toBeLessThanOrEqual(heldQtyByTicker.get(a.ticker) ?? 0);
+      }
     }
   });
 });
