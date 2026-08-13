@@ -13,6 +13,9 @@ function makeFundamentals(overrides: Partial<Fundamentals> = {}): Fundamentals {
     marketCap: null,
     annualNetIncomes: [],
     dividendYears: [],
+    quoteType: 'EQUITY',
+    expenseRatio: null,
+    topHoldingsConcentration: null,
     fetchedAt: Date.now(),
     warnings: [],
     ...overrides,
@@ -29,21 +32,24 @@ describe('evaluateGraham', () => {
 
   it('passes a textbook-defensive stock on every computable criterion', () => {
     const f = makeFundamentals({
+      marketCap: 5_000_000_000,
       currentRatio: 2.5,
       debtToEquity: 0.4,
       trailingPE: 12,
       priceToBook: 1.2,
       annualNetIncomes: [
-        { year: 2025, netIncome: 100 },
-        { year: 2024, netIncome: 90 },
-        { year: 2023, netIncome: 80 },
-        { year: 2022, netIncome: 70 },
+        { year: 2026, netIncome: 150 },
+        { year: 2025, netIncome: 130 },
+        { year: 2024, netIncome: 115 },
+        { year: 2023, netIncome: 100 },
       ],
       dividendYears: Array.from({ length: 25 }, (_, i) => 2026 - i),
     });
     const result = evaluateGraham(f);
     expect(result.failCount).toBe(0);
     expect(result.checks.find((c) => c.key === 'currentRatio')?.status).toBe('pass');
+    expect(result.checks.find((c) => c.key === 'marketCap')?.status).toBe('pass');
+    expect(result.checks.find((c) => c.key === 'earningsGrowth')?.status).toBe('pass');
     expect(result.checks.find((c) => c.key === 'perPbrCombo')?.status).toBe('pass');
   });
 
@@ -81,6 +87,40 @@ describe('evaluateGraham', () => {
     const f = makeFundamentals({ dividendYears: [] });
     const result = evaluateGraham(f);
     expect(result.checks.find((c) => c.key === 'dividendRecord')?.status).toBe('fail');
+  });
+
+  it('scales the earnings-growth target down proportionally to the years actually available', () => {
+    // 4년치 데이터 -> 목표치는 33% * 4/10 = 13.2%. 20% 성장이면 통과해야 한다.
+    const f = makeFundamentals({
+      annualNetIncomes: [
+        { year: 2026, netIncome: 120 },
+        { year: 2025, netIncome: 112 },
+        { year: 2024, netIncome: 105 },
+        { year: 2023, netIncome: 100 },
+      ],
+    });
+    expect(evaluateGraham(f).checks.find((c) => c.key === 'earningsGrowth')?.status).toBe('pass');
+
+    const shrinking = makeFundamentals({
+      annualNetIncomes: [
+        { year: 2026, netIncome: 90 },
+        { year: 2025, netIncome: 95 },
+        { year: 2024, netIncome: 98 },
+        { year: 2023, netIncome: 100 },
+      ],
+    });
+    expect(evaluateGraham(shrinking).checks.find((c) => c.key === 'earningsGrowth')?.status).toBe('fail');
+  });
+
+  it('uses a KRW-scaled market cap threshold for Korean-currency stocks', () => {
+    const belowUsdThresholdButAboveKrwEquivalent = makeFundamentals({
+      currency: 'KRW',
+      marketCap: 3_000_000_000_000, // 3조원, 약 23억달러 상당 (20억달러 문턱 근사치보다 큼)
+    });
+    expect(evaluateGraham(belowUsdThresholdButAboveKrwEquivalent).checks.find((c) => c.key === 'marketCap')?.status).toBe('pass');
+
+    const tooSmall = makeFundamentals({ currency: 'KRW', marketCap: 100_000_000_000 });
+    expect(evaluateGraham(tooSmall).checks.find((c) => c.key === 'marketCap')?.status).toBe('fail');
   });
 });
 

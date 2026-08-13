@@ -69,7 +69,17 @@ async function getCrumbSession(): Promise<CrumbSession | null> {
 
 type SummaryFields = Pick<
   Fundamentals,
-  'currency' | 'currentRatio' | 'debtToEquity' | 'trailingPE' | 'priceToBook' | 'dividendYield' | 'marketCap' | 'annualNetIncomes'
+  | 'currency'
+  | 'currentRatio'
+  | 'debtToEquity'
+  | 'trailingPE'
+  | 'priceToBook'
+  | 'dividendYield'
+  | 'marketCap'
+  | 'annualNetIncomes'
+  | 'quoteType'
+  | 'expenseRatio'
+  | 'topHoldingsConcentration'
 >;
 
 async function fetchQuoteSummary(symbol: string): Promise<Partial<SummaryFields> & { warning?: string }> {
@@ -77,7 +87,7 @@ async function fetchQuoteSummary(symbol: string): Promise<Partial<SummaryFields>
   if (!session) return { warning: '재무 데이터를 가져오지 못했습니다 (인증 실패)' };
 
   try {
-    const modules = 'financialData,defaultKeyStatistics,summaryDetail,incomeStatementHistory';
+    const modules = 'financialData,defaultKeyStatistics,summaryDetail,incomeStatementHistory,quoteType,fundProfile,topHoldings';
     const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=${modules}&crumb=${encodeURIComponent(session.crumb)}`;
     const res = await fetch(url, { headers: { 'User-Agent': UA, Cookie: session.cookie }, cache: 'no-store' });
     if (!res.ok) return { warning: '재무 데이터를 가져오지 못했습니다' };
@@ -100,6 +110,17 @@ async function fetchQuoteSummary(symbol: string): Promise<Partial<SummaryFields>
       .filter((v): v is { year: number; netIncome: number } => v !== null)
       .sort((a, b) => b.year - a.year);
 
+    const quoteType: string | null = result.quoteType?.quoteType ?? null;
+
+    const expenseRatio: number | null =
+      result.fundProfile?.feesExpensesInvestment?.annualReportExpenseRatio?.raw ?? null;
+
+    const topHoldingsList: Array<{ holdingPercent?: { raw?: number } }> = result.topHoldings?.holdings ?? [];
+    const topHoldingsConcentration =
+      topHoldingsList.length > 0
+        ? topHoldingsList.reduce((sum, h) => sum + (h.holdingPercent?.raw ?? 0), 0)
+        : null;
+
     return {
       currency: summary.currency ?? null,
       currentRatio: financialData.currentRatio?.raw ?? null,
@@ -109,6 +130,9 @@ async function fetchQuoteSummary(symbol: string): Promise<Partial<SummaryFields>
       dividendYield: summary.dividendYield?.raw ?? null,
       marketCap: summary.marketCap?.raw ?? keyStats.marketCap?.raw ?? null,
       annualNetIncomes,
+      quoteType,
+      expenseRatio,
+      topHoldingsConcentration,
     };
   } catch {
     return { warning: '재무 데이터를 가져오지 못했습니다' };
@@ -159,6 +183,9 @@ export async function GET(req: NextRequest) {
     marketCap: summaryData.marketCap ?? null,
     annualNetIncomes: summaryData.annualNetIncomes ?? [],
     dividendYears: dividendData.dividendYears,
+    quoteType: summaryData.quoteType ?? null,
+    expenseRatio: summaryData.expenseRatio ?? null,
+    topHoldingsConcentration: summaryData.topHoldingsConcentration ?? null,
     fetchedAt: Date.now(),
     warnings,
   };

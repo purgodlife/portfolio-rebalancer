@@ -1,6 +1,6 @@
 'use client';
 
-import { getDb, type AppSettings, type WatchlistItem } from './db';
+import { getDb, type AppSettings, type WatchlistItem, type PortfolioSnapshot } from './db';
 import type { Category, Holding } from '@/lib/rebalance/types';
 
 export interface BackupPayload {
@@ -10,16 +10,19 @@ export interface BackupPayload {
   holdings: Holding[];
   watchlist: WatchlistItem[];
   settings: AppSettings[];
+  /** 월별 자산추이 스냅샷. 이 필드가 없는 예전 백업 파일도 그대로 불러올 수 있다. */
+  snapshots?: PortfolioSnapshot[];
 }
 
 /** 현재 로컬 DB 전체를 JSON으로 직렬화한다. 서버 전송 없음. */
 export async function exportBackup(): Promise<BackupPayload> {
   const db = getDb();
-  const [categories, holdings, watchlist, settings] = await Promise.all([
+  const [categories, holdings, watchlist, settings, snapshots] = await Promise.all([
     db.categories.toArray(),
     db.holdings.toArray(),
     db.watchlist.toArray(),
     db.settings.toArray(),
+    db.snapshots.toArray(),
   ]);
   return {
     schemaVersion: 1,
@@ -28,6 +31,7 @@ export async function exportBackup(): Promise<BackupPayload> {
     holdings,
     watchlist,
     settings,
+    snapshots,
   };
 }
 
@@ -50,7 +54,8 @@ function isBackupPayload(data: unknown): data is BackupPayload {
     d.schemaVersion === 1 &&
     Array.isArray(d.categories) &&
     Array.isArray(d.holdings) &&
-    Array.isArray(d.watchlist)
+    Array.isArray(d.watchlist) &&
+    (d.snapshots === undefined || Array.isArray(d.snapshots))
   );
 }
 
@@ -62,18 +67,28 @@ export async function importBackup(file: File): Promise<void> {
     throw new Error('올바르지 않은 백업 파일 형식입니다.');
   }
   const db = getDb();
-  await db.transaction('rw', db.categories, db.holdings, db.watchlist, db.settings, async () => {
-    await Promise.all([
-      db.categories.clear(),
-      db.holdings.clear(),
-      db.watchlist.clear(),
-      db.settings.clear(),
-    ]);
-    await Promise.all([
-      db.categories.bulkAdd(data.categories),
-      db.holdings.bulkAdd(data.holdings),
-      db.watchlist.bulkAdd(data.watchlist),
-      db.settings.bulkAdd(data.settings ?? []),
-    ]);
-  });
+  await db.transaction(
+    'rw',
+    db.categories,
+    db.holdings,
+    db.watchlist,
+    db.settings,
+    db.snapshots,
+    async () => {
+      await Promise.all([
+        db.categories.clear(),
+        db.holdings.clear(),
+        db.watchlist.clear(),
+        db.settings.clear(),
+        db.snapshots.clear(),
+      ]);
+      await Promise.all([
+        db.categories.bulkAdd(data.categories),
+        db.holdings.bulkAdd(data.holdings),
+        db.watchlist.bulkAdd(data.watchlist),
+        db.settings.bulkAdd(data.settings ?? []),
+        db.snapshots.bulkAdd(data.snapshots ?? []),
+      ]);
+    }
+  );
 }

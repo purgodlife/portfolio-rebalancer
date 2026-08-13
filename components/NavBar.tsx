@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import LanguageSwitcher from './LanguageSwitcher';
+import MarketTicker from './MarketTicker';
 
 export default function NavBar() {
   const t = useTranslations('nav');
@@ -12,14 +13,17 @@ export default function NavBar() {
     { href: '/', label: t('dashboard') },
     { href: '/allocation', label: t('allocation') },
     { href: '/holdings', label: t('holdings') },
+    { href: '/watchlist', label: t('watchlist') },
     { href: '/history', label: t('history') },
     { href: '/trend', label: t('trend') },
     { href: '/risk', label: t('risk') },
+    { href: '/settings', label: t('settings') },
     { href: '/disclaimer', label: t('disclaimer') },
   ];
 
   return (
     <header className="border-b border-gray-200 bg-white">
+      <MarketTicker />
       <div className="mx-auto max-w-5xl px-4 py-3 flex items-center justify-between gap-4">
         <div className="flex items-center gap-6 overflow-x-auto">
           <span className="font-semibold text-brand-700 whitespace-nowrap">

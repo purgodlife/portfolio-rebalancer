@@ -1,7 +1,7 @@
 'use client';
 
 import { useLiveQuery } from 'dexie-react-hooks';
-import { getDb, type AppSettings, type PortfolioSnapshot } from './db';
+import { getDb, type AppSettings, type PortfolioSnapshot, type WatchlistItem } from './db';
 import type { Category, Holding } from '@/lib/rebalance/types';
 
 function uid(prefix: string): string {
@@ -97,4 +97,21 @@ export function useSnapshots(): PortfolioSnapshot[] {
 
 export async function upsertSnapshot(snapshot: PortfolioSnapshot): Promise<void> {
   await getDb().snapshots.put(snapshot);
+}
+
+
+/**
+ * 관심종목(워치리스트) — 보유하지 않은 종목도 자유롭게 추가/삭제하면서 현재가만
+ * 확인하고 싶을 때 쓴다. 매수가/수량이 없으므로 리밸런싱 계산에는 전혀 관여하지 않는다.
+ */
+export function useWatchlist(): WatchlistItem[] {
+  return useLiveQuery(() => getDb().watchlist.toArray(), [], []) ?? [];
+}
+
+export async function addWatchlistItem(item: Omit<WatchlistItem, 'id'>): Promise<void> {
+  await getDb().watchlist.add({ ...item, id: uid('watch') });
+}
+
+export async function removeWatchlistItem(id: string): Promise<void> {
+  await getDb().watchlist.delete(id);
 }

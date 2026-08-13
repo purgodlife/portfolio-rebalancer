@@ -5,6 +5,10 @@ import type { Market } from '@/lib/rebalance/types';
 export interface QuoteResult {
   price: number;
   currency: string;
+  /** 전일 종가. 없으면 등락률을 계산할 수 없어 null. */
+  previousClose: number | null;
+  /** (price - previousClose) / previousClose * 100 */
+  changePercent: number | null;
 }
 
 interface YahooChartResponse {
@@ -12,6 +16,8 @@ interface YahooChartResponse {
     result?: Array<{
       meta?: {
         regularMarketPrice?: number;
+        previousClose?: number;
+        chartPreviousClose?: number;
         currency?: string;
       };
     }>;
@@ -26,10 +32,23 @@ async function fetchYahooChart(symbol: string): Promise<QuoteResult | null> {
     const data: YahooChartResponse = await res.json();
     const meta = data.chart?.result?.[0]?.meta;
     if (!meta || typeof meta.regularMarketPrice !== 'number') return null;
-    return { price: meta.regularMarketPrice, currency: meta.currency ?? 'USD' };
+    const previousClose = meta.previousClose ?? meta.chartPreviousClose ?? null;
+    const changePercent =
+      previousClose && previousClose !== 0 ? ((meta.regularMarketPrice - previousClose) / previousClose) * 100 : null;
+    return {
+      price: meta.regularMarketPrice,
+      currency: meta.currency ?? 'USD',
+      previousClose,
+      changePercent,
+    };
   } catch {
     return null;
   }
+}
+
+/** 지수(^KS11, ^GSPC, ^IXIC 등)처럼 시장 접미사 추측이 필요 없는 원시 심볼을 그대로 조회한다. */
+export async function fetchQuoteBySymbol(symbol: string): Promise<QuoteResult | null> {
+  return fetchYahooChart(symbol);
 }
 
 /**

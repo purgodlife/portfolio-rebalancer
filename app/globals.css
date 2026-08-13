@@ -30,3 +30,22 @@ body {
 .table-cell {
   @apply px-3 py-2 text-sm border-b border-gray-100;
 }
+
+/* 상단 정보 티커: 두 벌을 이어붙인 목록을 -50% 만큼 옮겨서 끊김 없이 반복되는
+   것처럼 보이게 한다. 마우스를 올리면 잠깐 멈춰서 읽을 수 있게 한다. */
+@keyframes ticker-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.ticker-track {
+  animation: ticker-scroll 45s linear infinite;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
