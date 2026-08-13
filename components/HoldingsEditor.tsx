@@ -7,6 +7,7 @@ import StockAutocomplete from './StockAutocomplete';
 import { fetchCurrentPrice } from '@/lib/market/quote';
 import { useUsdKrwRate, FALLBACK_USD_KRW_RATE } from '@/lib/market/fxRate';
 import { groupHoldings, type HoldingGroup } from '@/lib/rebalance/grouping';
+import TickerLogo from './TickerLogo';
 import type { StockEntry } from '@/lib/search/stockData';
 import type { Currency, LotType, Market } from '@/lib/rebalance/types';
 
@@ -210,7 +211,12 @@ export default function HoldingsEditor() {
                 <Fragment key={g.key}>
                   <tr className="cursor-pointer hover:bg-gray-50" onClick={() => toggleExpand(g.key)}>
                     <td className="table-cell text-gray-400 select-none">{isOpen ? '▾' : '▸'}</td>
-                    <td className="table-cell font-mono">{g.ticker}</td>
+                    <td className="table-cell font-mono">
+                      <div className="flex items-center gap-2">
+                        <TickerLogo ticker={g.ticker} size={18} />
+                        {g.ticker}
+                      </div>
+                    </td>
                     <td className="table-cell">{g.name}</td>
                     <td className="table-cell">{categoryName(g.categoryId)}</td>
                     <td className="table-cell">{g.currency}</td>
@@ -438,7 +444,11 @@ export default function HoldingsEditor() {
         티커나 종목명 중 하나만 입력해도(한글 초성 검색 가능) 목록에서 골라 자동완성할 수 있습니다. 목록에 없는
         종목은 직접 입력하면 됩니다. ↻ 버튼을 누르면 Yahoo Finance에서 현재가를 조회해 채워줍니다(목록에 없는
         티커도 조회는 됩니다). 미국 종목은 매수가/현재가를 달러로 그대로 입력하시면 됩니다. 이미 있는 종목을 또
-        추가하면 별도 행이 아니라 위 표에서 자동으로 합산됩니다.
+        추가하면 별도 행이 아니라 위 표에서 자동으로 합산됩니다. 종목 로고는{' '}
+        <a href="https://elbstream.com" target="_blank" rel="noopener noreferrer" className="underline">
+          Elbstream
+        </a>
+        에서 제공하며, 못 찾은 종목은 이니셜 아이콘으로 대신 표시됩니다.
       </p>
 
       {usdGroups.length > 0 && (

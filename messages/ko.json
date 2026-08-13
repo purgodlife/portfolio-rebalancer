@@ -20,7 +20,8 @@
     "settings": "설정/백업",
     "disclaimer": "이용약관",
     "history": "거래내역",
-    "trend": "자산추이"
+    "trend": "자산추이",
+    "risk": "리스크"
   },
   "disclaimer": {
     "title": "서비스 이용 전 꼭 확인해주세요",
@@ -131,5 +132,37 @@
     "onlyOneNote": "아직 한 달치 데이터만 있어서 추이라기보다 현재 값입니다. 시간이 지나면 그래프가 채워집니다.",
     "month": "월",
     "totalValue": "총 평가금액"
+  },
+  "risk": {
+    "structuralTitle": "구조적 리스크",
+    "structuralDescription": "보유 비중이 얼마나 특정 종목/카테고리/통화/시장에 몰려 있는지를 수치로 보여줍니다. 과거 시세 변동성이 아니라, 지금 갖고 있는 구조 자체의 집중도입니다.",
+    "noHoldings": "보유종목을 먼저 입력해주세요.",
+    "topHolding": "최대 비중 종목",
+    "top3": "상위 3종목 비중",
+    "holdingHHI": "종목 집중도(HHI)",
+    "categoryHHI": "카테고리 집중도(HHI)",
+    "currencyExposure": "통화 노출",
+    "marketExposure": "시장 노출",
+    "hhiNote": "HHI(허핀달-허쉬만 지수)는 비중을 제곱해 더한 값입니다. 1이면 한 종목/카테고리에 전부 몰려 있다는 뜻이고, 종목 수가 n개로 완전히 균등하면 1/n이 됩니다. 카드에 빨간 배경이 뜨면 통상적인 기준(최대 종목 20%, 상위3종목 50%, 종목 HHI 0.25, 카테고리 HHI 0.4)을 넘었다는 뜻이며 절대적인 정답은 아닙니다.",
+    "grahamTitle": "그레이엄 방어적 투자자 체크리스트",
+    "grahamDescription": "벤저민 그레이엄 '현명한 투자자'의 방어적 투자자 기준을 보유종목마다 자동으로 계산합니다. 초록색은 기준 충족, 빨간색은 미충족, 회색(-)은 데이터가 없어 판단할 수 없다는 뜻입니다.",
+    "grahamDataNote": "Yahoo Finance의 무료 재무데이터를 사용합니다. 일부 항목(특히 한국 종목, 신생 상장사, ETF)은 데이터가 없을 수 있고, 이 API는 비공식이라 가끔 조회에 실패할 수 있습니다. 실패하면 ↻로 다시 시도해보세요.",
+    "colTicker": "종목",
+    "colCurrentRatio": "유동비율",
+    "colDebtToEquity": "부채비율",
+    "colEarnings": "이익안정성",
+    "colDividend": "배당연속",
+    "colPer": "PER",
+    "colPbr": "PBR",
+    "colScore": "충족/판정",
+    "checkCurrentRatio": "유동자산/유동부채 ≥ 2",
+    "checkDebtToEquity": "부채/자본비율 ≤ 1 (그레이엄 원기준의 근사치)",
+    "checkEarnings": "확보된 연도 전부 흑자인지 (최대 4개년, 원기준은 10년)",
+    "checkDividend": "연속 배당 지급 연수 (그레이엄 원기준 20년 이상)",
+    "checkPer": "주가수익비율 ≤ 15",
+    "checkPbr": "주가순자산비율 ≤ 1.5",
+    "fetchFailed": "조회 실패",
+    "refresh": "다시 조회",
+    "logoAttribution": "종목 로고 제공:"
   }
 }

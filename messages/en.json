@@ -20,7 +20,8 @@
     "settings": "Settings / Backup",
     "disclaimer": "Terms",
     "history": "History",
-    "trend": "Trend"
+    "trend": "Trend",
+    "risk": "Risk"
   },
   "disclaimer": {
     "title": "Please review before using this app",
@@ -131,5 +132,37 @@
     "onlyOneNote": "Only one month of data so far — this is just the current value, not yet a trend. It will fill in over time.",
     "month": "Month",
     "totalValue": "Total value"
+  },
+  "risk": {
+    "structuralTitle": "Structural Risk",
+    "structuralDescription": "Shows how concentrated your holdings are by ticker, category, currency, and market. This measures concentration in your current structure, not historical price volatility.",
+    "noHoldings": "Please add holdings first.",
+    "topHolding": "Largest holding",
+    "top3": "Top 3 holdings",
+    "holdingHHI": "Holding concentration (HHI)",
+    "categoryHHI": "Category concentration (HHI)",
+    "currencyExposure": "Currency exposure",
+    "marketExposure": "Market exposure",
+    "hhiNote": "HHI (Herfindahl-Hirschman Index) sums the squares of each weight. 1 means everything is in one holding/category; with n evenly-weighted holdings it equals 1/n. A red card means a common rule of thumb was exceeded (largest holding 20%, top 3 50%, holding HHI 0.25, category HHI 0.4) — these are not hard rules.",
+    "grahamTitle": "Graham Defensive Investor Checklist",
+    "grahamDescription": "Automatically evaluates Benjamin Graham's defensive investor criteria from The Intelligent Investor for each holding. Green means it passes, red means it fails, gray (-) means there wasn't enough data to judge.",
+    "grahamDataNote": "Uses Yahoo Finance's free financial data. Some fields (especially for Korean tickers, newer listings, or ETFs) may be missing, and this is an unofficial API that can occasionally fail. Use ↻ to retry.",
+    "colTicker": "Ticker",
+    "colCurrentRatio": "Current ratio",
+    "colDebtToEquity": "Debt/equity",
+    "colEarnings": "Earnings stability",
+    "colDividend": "Dividend streak",
+    "colPer": "P/E",
+    "colPbr": "P/B",
+    "colScore": "Pass/checked",
+    "checkCurrentRatio": "Current assets / current liabilities >= 2",
+    "checkDebtToEquity": "Debt/equity <= 1 (approximation of Graham's original criterion)",
+    "checkEarnings": "Profitable in every available year (up to 4 years; Graham's original was 10)",
+    "checkDividend": "Consecutive years with a dividend (Graham's original was 20+)",
+    "checkPer": "Price/earnings <= 15",
+    "checkPbr": "Price/book <= 1.5",
+    "fetchFailed": "Fetch failed",
+    "refresh": "Refresh",
+    "logoAttribution": "Ticker logos by"
   }
 }
