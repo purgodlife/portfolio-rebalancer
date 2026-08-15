@@ -2,13 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useCategories, useHoldings } from '@/lib/storage/hooks';
+import { useCategories, useHoldings, useAccounts } from '@/lib/storage/hooks';
+import { useSelectedAccountId } from '@/lib/storage/accountContext';
 import { useUsdKrwRate, FALLBACK_USD_KRW_RATE } from '@/lib/market/fxRate';
 import { groupHoldings, groupToHolding } from '@/lib/rebalance/grouping';
 import { computeStructuralRisk, type StructuralRiskItem } from '@/lib/risk/structural';
 import { evaluateGraham, type GrahamCheckKey } from '@/lib/risk/graham';
 import { evaluateGrahamEnterprising, type GrahamEnterprisingCheckKey } from '@/lib/risk/grahamEnterprising';
 import { evaluateEtfRisk, type EtfCheckKey } from '@/lib/risk/etf';
+import { evaluateAccountFit, type AccountFitLevel } from '@/lib/risk/accountFit';
 import { fetchFundamentals, type Fundamentals } from '@/lib/market/fundamentals';
 import { primaryLabel, secondaryLabel } from '@/lib/format/holdingLabel';
 import TickerLogo from './TickerLogo';
@@ -41,8 +43,11 @@ const ETF_COLUMNS: EtfCheckKey[] = ['leverage', 'expenseRatio', 'concentration']
 
 export default function RiskDashboard() {
   const t = useTranslations('risk');
+  const ta = useTranslations('accounts');
   const categories = useCategories();
   const holdings = useHoldings();
+  const accounts = useAccounts();
+  const selectedAccountId = useSelectedAccountId();
   const fx = useUsdKrwRate();
   const usdKrwRate = fx.rate ?? FALLBACK_USD_KRW_RATE;
 
@@ -75,9 +80,69 @@ export default function RiskDashboard() {
   const etfGroups = groups.filter((h) => fundamentalsByKey[`${h.market}:${h.ticker}`]?.quoteType === 'ETF');
   const stockGroups = groups.filter((h) => fundamentalsByKey[`${h.market}:${h.ticker}`]?.quoteType !== 'ETF');
 
+  const currentAccount = accounts.find((a) => a.id === selectedAccountId);
+  const accountFitReport = currentAccount
+    ? evaluateAccountFit(
+        currentAccount.type,
+        groups.map((h) => {
+          const f = fundamentalsByKey[`${h.market}:${h.ticker}`];
+          return {
+            ticker: h.ticker,
+            name: h.name,
+            market: h.market,
+            quoteType: f?.quoteType,
+            dividendYield: f?.dividendYield,
+          };
+        })
+      )
+    : null;
+
+  const FIT_LEVEL_STYLE: Record<AccountFitLevel, string> = {
+    critical: 'border-red-300 bg-red-50 text-red-700',
+    low: 'border-amber-300 bg-amber-50 text-amber-700',
+    info: 'border-gray-200 bg-gray-50 text-gray-600',
+    good: 'border-green-200 bg-green-50 text-green-700',
+  };
+  const FIT_LEVEL_ICON: Record<AccountFitLevel, string> = {
+    critical: '⚠',
+    low: '△',
+    info: 'ℹ',
+    good: '✓',
+  };
+
   return (
     <div className="space-y-5">
       <CurrentAccountBadge />
+
+      {currentAccount && accountFitReport && (
+        <div className="card">
+          <h2 className="text-lg font-semibold mb-1">
+            {t('fitTitle')} <InfoTooltip text={t('fitDisclaimer')} source={t('fitSource')} />
+          </h2>
+          <p className="text-sm text-gray-500 mb-4">
+            {t('fitDescription', { accountType: ta(`type_${currentAccount.type}`) })}
+          </p>
+          {groups.length === 0 ? (
+            <p className="text-sm text-gray-500">{t('noHoldings')}</p>
+          ) : (
+            <ul className="space-y-2">
+              {accountFitReport.findings.map((f, i) => (
+                <li
+                  key={i}
+                  className={`flex items-start gap-2 rounded-md border p-3 text-sm ${FIT_LEVEL_STYLE[f.level]}`}
+                >
+                  <span className="mt-0.5 shrink-0">{FIT_LEVEL_ICON[f.level]}</span>
+                  <span>
+                    {f.name && <span className="font-medium">{f.name} · </span>}
+                    {t(`finding_${f.key}`, f.params)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+
       <div className="card">
         <h2 className="text-lg font-semibold mb-1">{t('structuralTitle')}</h2>
         <p className="text-sm text-gray-500 mb-4">{t('structuralDescription')}</p>

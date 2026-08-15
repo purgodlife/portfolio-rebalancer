@@ -18,7 +18,7 @@ export interface EtfRiskResult {
   isLikelyLeveraged: boolean;
 }
 
-const LEVERAGE_PATTERN = /(\b2X\b|\b3X\b|ULTRA|LEVERAGED|INVERSE|\bBEAR\b|\bBULL\b)/i;
+const LEVERAGE_PATTERN = /(\b2X\b|\b3X\b|ULTRA|LEVERAGED|INVERSE|\bBEAR\b|\bBULL\b|레버리지|인버스|곱버스)/i;
 
 /** 종목명/티커에 레버리지·인버스 상품임을 시사하는 흔한 표현이 있는지 휴리스틱으로 판단한다. */
 export function detectLeverage(name: string, ticker: string): boolean {

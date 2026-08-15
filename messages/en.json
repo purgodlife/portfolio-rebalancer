@@ -226,7 +226,20 @@
     "ecol_earningsGrowth": "Earnings growth",
     "echeck_earningsGrowth": "Whether the most recent year's earnings are higher than the oldest available year. Unlike the defensive checklist (33%+ over 10 years), there's no specific magnitude threshold.",
     "ecol_priceToTangibleAssets": "Price/tangible assets",
-    "echeck_priceToTangibleAssets": "Graham's original criterion is 'price no more than 120% of tangible asset value' (net assets excluding intangibles). Tangible-only book value isn't available for free, so regular price/book <= 1.2 is used as an approximation."
+    "echeck_priceToTangibleAssets": "Graham's original criterion is 'price no more than 120% of tangible asset value' (net assets excluding intangibles). Tangible-only book value isn't available for free, so regular price/book <= 1.2 is used as an approximation.",
+    "fitTitle": "Account Fit Check",
+    "fitDescription": "Checks whether your holdings in this {accountType} account actually match its tax benefits and trading scope.",
+    "fitDisclaimer": "This check includes name-based heuristics (e.g. an ETF named \"US\" or \"Bond\" is assumed foreign/bond-type) and is for reference only — verify exact product classification in the prospectus.",
+    "fitSource": "Source: Restriction of Special Taxation Act Art. 91-18 (ISA); Enforcement Decree of the Financial Investment Services Act (derivative risky-asset limits)",
+    "finding_generalNoRestriction": "A general account has no special tax benefits or trading restrictions — it can be managed freely.",
+    "finding_foreignDirectStock": "This is a stock listed directly on a foreign (US) exchange, which this account type cannot trade. It may actually be held in a different account, or the account assignment in this app may be incorrect.",
+    "finding_isaTaxableEtfGood": "This appears to be a product whose gains would normally be taxed (e.g. foreign-index or bond-type), so it makes good use of the ISA tax-free/reduced-rate benefit.",
+    "finding_isaDomesticEtfLimited": "This appears to track a domestic stock index, so its capital gains were likely already tax-free outside an ISA. The ISA-specific tax benefit may be limited here (dividends still benefit).",
+    "finding_isaDividendGood": "With a dividend yield of about {yield}%, this benefits from the ISA tax-free/reduced-rate treatment on dividend income, which is normally taxable.",
+    "finding_isaLowBenefitStock": "This is a domestic individual stock with a low dividend yield. Since its capital gains were already tax-free, holding it in an ISA may add little extra benefit.",
+    "finding_pensionLeverageBanned": "This appears to be a leveraged/inverse product. Pension savings and IRP accounts are fully prohibited from trading these, so this may not actually be tradeable, or the account assignment may be incorrect.",
+    "finding_irpRiskyAssetLimitInfo": "IRP accounts can only allocate up to 70% of the balance to risky assets (equity ETFs/funds, etc). This app doesn't track principal-guaranteed product balances, so verify the real ratio in your brokerage app.",
+    "finding_noIssuesFound": "No issues to flag."
   },
   "ticker": {
     "kospi": "KOSPI",

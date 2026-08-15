@@ -62,6 +62,14 @@ export function useCategories(): Category[] {
   return all.filter((c) => resolveAccountId(c.accountId) === selectedAccountId);
 }
 
+/**
+ * 계좌 구분 없이 모든 카테고리를 반환한다. 보유종목을 다른 계좌로 옮길 때
+ * "어느 계좌의 어느 카테고리로 옮길지" 선택지를 만드는 용도로만 쓴다.
+ */
+export function useAllCategories(): Category[] {
+  return useLiveQuery(() => getDb().categories.toArray(), [], []) ?? [];
+}
+
 /** 카테고리 관련 함수들은 입력값을 그대로 저장한다(자동으로 비율을 조정하지 않음). */
 export async function addCategory(name: string, targetPercent: number, accountId: string): Promise<void> {
   await getDb().categories.add({ id: uid('cat'), name, targetPercent, accountId });
@@ -98,6 +106,23 @@ export async function updateHolding(holding: Holding): Promise<void> {
 
 export async function removeHolding(id: string): Promise<void> {
   await getDb().holdings.delete(id);
+}
+
+/**
+ * 여러 보유종목(같은 종목의 매수/매도 내역들)을 한꺼번에 다른 카테고리로
+ * 옮긴다. 카테고리는 계좌에 속해있으므로, 다른 계좌의 카테고리를 고르면
+ * 그 보유종목이 통째로 다른 계좌로 이동한 것과 같은 효과가 난다.
+ */
+export async function moveHoldingsToCategory(holdingIds: string[], categoryId: string): Promise<void> {
+  const db = getDb();
+  await db.transaction('rw', db.holdings, async () => {
+    for (const id of holdingIds) {
+      const holding = await db.holdings.get(id);
+      if (holding) {
+        await db.holdings.put({ ...holding, categoryId });
+      }
+    }
+  });
 }
 
 /**

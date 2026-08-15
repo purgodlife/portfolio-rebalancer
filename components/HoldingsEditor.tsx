@@ -2,7 +2,17 @@
 
 import { Fragment, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useCategories, useHoldings, addHolding, updateHolding, removeHolding } from '@/lib/storage/hooks';
+import {
+  useCategories,
+  useAllCategories,
+  useAccounts,
+  useHoldings,
+  addHolding,
+  updateHolding,
+  removeHolding,
+  moveHoldingsToCategory,
+} from '@/lib/storage/hooks';
+import { DEFAULT_ACCOUNT_ID } from '@/lib/storage/accountContext';
 import StockAutocomplete from './StockAutocomplete';
 import { fetchCurrentPrice } from '@/lib/market/quote';
 import { useUsdKrwRate, FALLBACK_USD_KRW_RATE } from '@/lib/market/fxRate';
@@ -36,6 +46,8 @@ export default function HoldingsEditor() {
   const t = useTranslations('holdings');
   const tc = useTranslations('common');
   const categories = useCategories();
+  const allCategories = useAllCategories();
+  const accounts = useAccounts();
   const holdings = useHoldings();
   const [form, setForm] = useState(EMPTY_FORM);
   const [refreshing, setRefreshing] = useState<Record<string, boolean>>({});
@@ -164,6 +176,25 @@ export default function HoldingsEditor() {
     return categories.find((c) => c.id === id)?.name ?? '-';
   }
 
+  function accountName(accountId: string | undefined): string {
+    const resolved = accountId ?? DEFAULT_ACCOUNT_ID;
+    return accounts.find((a) => a.id === resolved)?.name ?? '-';
+  }
+
+  // "계좌명 · 카테고리명" 형태로 모든 계좌의 카테고리를 한 목록에 펼쳐서, 이 값을
+  // 고르는 것만으로 보유종목을 다른 계좌로도 옮길 수 있게 한다.
+  const categoryMoveOptions = allCategories
+    .map((c) => ({ id: c.id, label: `${accountName(c.accountId)} · ${c.name}` }))
+    .sort((a, b) => a.label.localeCompare(b.label));
+
+  async function moveGroupToCategory(group: HoldingGroup, categoryId: string) {
+    if (!categoryId || categoryId === group.categoryId) return;
+    await moveHoldingsToCategory(
+      group.lots.map((l) => l.id),
+      categoryId
+    );
+  }
+
   const usdGroups = groups.filter((g) => g.currency === 'USD' && g.netQuantity > 0);
 
   return (
@@ -220,7 +251,19 @@ export default function HoldingsEditor() {
                       </div>
                     </td>
                     <td className="table-cell">{g.name}</td>
-                    <td className="table-cell">{categoryName(g.categoryId)}</td>
+                    <td className="table-cell" onClick={(e) => e.stopPropagation()}>
+                      <select
+                        className="input py-1 text-xs"
+                        value={g.categoryId}
+                        onChange={(e) => moveGroupToCategory(g, e.target.value)}
+                      >
+                        {categoryMoveOptions.map((opt) => (
+                          <option key={opt.id} value={opt.id}>
+                            {opt.label}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
                     <td className="table-cell">{g.currency}</td>
                     <td className="table-cell">
                       {g.avgBuyPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}
