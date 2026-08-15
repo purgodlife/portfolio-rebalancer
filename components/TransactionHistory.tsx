@@ -18,7 +18,7 @@ export default function TransactionHistory() {
   const fx = useUsdKrwRate();
   const usdKrwRate = fx.rate ?? FALLBACK_USD_KRW_RATE;
 
-  const yearlyUsGains = calculateUsRealizedGainsByYear(holdings);
+  const yearlyUsGains = calculateUsRealizedGainsByYear(holdings, usdKrwRate);
 
   function categoryName(id: string) {
     return categories.find((c) => c.id === id)?.name ?? '-';
@@ -52,7 +52,7 @@ export default function TransactionHistory() {
               </thead>
               <tbody>
                 {yearlyUsGains.map((y) => {
-                  const est = estimateUsCapitalGainsTax(y.realizedGainUsd, usdKrwRate);
+                  const est = estimateUsCapitalGainsTax(y.realizedGainKrw);
                   const over = est.taxableGainKrw > 0;
                   return (
                     <tr key={y.year}>
@@ -65,7 +65,8 @@ export default function TransactionHistory() {
                         {Math.round(y.realizedGainUsd).toLocaleString()} USD
                       </td>
                       <td className="table-cell text-gray-500">
-                        {Math.round(est.realizedGainKrw).toLocaleString()} KRW
+                        {Math.round(y.realizedGainKrw).toLocaleString()} KRW
+                        {y.hasApproximatedKrw && <span title={t('usGainsApproximatedNote')}>*</span>}
                       </td>
                       <td className={`table-cell ${over ? 'text-amber-600 font-medium' : 'text-gray-400'}`}>
                         {Math.round(est.taxableGainKrw).toLocaleString()} KRW
@@ -82,6 +83,9 @@ export default function TransactionHistory() {
           <p className="mt-2 text-xs text-gray-400">
             {t('usGainsDeductionNote', { deduction: US_CAPITAL_GAINS_ANNUAL_DEDUCTION_KRW.toLocaleString() })}
           </p>
+          {yearlyUsGains.some((y) => y.hasApproximatedKrw) && (
+            <p className="mt-1 text-xs text-gray-400">{t('usGainsApproximatedNote')}</p>
+          )}
         </div>
       )}
 

@@ -388,7 +388,8 @@ export default function HoldingsEditor() {
                                 </span>
                                 {lot.currency === 'USD' && lot.purchaseFxRate !== undefined && (
                                   <span className="text-gray-400">
-                                    {t('purchaseFxRate')} {lot.purchaseFxRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                    {type === 'sell' ? t('sellFxRate') : t('purchaseFxRate')}{' '}
+                                    {lot.purchaseFxRate.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                                   </span>
                                 )}
                                 <button
@@ -432,7 +433,7 @@ export default function HoldingsEditor() {
                               <input
                                 type="number"
                                 className="input w-32"
-                                placeholder={t('purchaseFxRate')}
+                                placeholder={lotForm.type === 'sell' ? t('sellFxRate') : t('purchaseFxRate')}
                                 value={lotFormValues.purchaseFxRate}
                                 onChange={(e) => setLotFormValues((v) => ({ ...v, purchaseFxRate: e.target.value }))}
                               />

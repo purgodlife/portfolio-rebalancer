@@ -58,6 +58,21 @@ describe('groupHoldings', () => {
     const [group] = groupHoldings(holdings);
     expect(group.avgPurchaseFxRate).toBeCloseTo(1350, 5);
   });
+
+  it('is undefined (not 0) when no buy lot recorded a purchase FX rate', () => {
+    const holdings: Holding[] = [{ id: 'hold-1-a', ...base, avgPrice: 100, quantity: 10 }];
+    const [group] = groupHoldings(holdings);
+    expect(group.avgPurchaseFxRate).toBeUndefined();
+  });
+
+  it('averages only over the buy lots that recorded a rate, ignoring lots that did not (does not dilute toward 0)', () => {
+    const holdings: Holding[] = [
+      { id: 'hold-1-a', ...base, avgPrice: 100, quantity: 10, purchaseFxRate: 1300 },
+      { id: 'hold-2-b', ...base, avgPrice: 100, quantity: 10 }, // no rate recorded
+    ];
+    const [group] = groupHoldings(holdings);
+    expect(group.avgPurchaseFxRate).toBeCloseTo(1300, 5);
+  });
 });
 
 describe('groupToHolding', () => {

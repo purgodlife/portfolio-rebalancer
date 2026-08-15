@@ -13,10 +13,12 @@ import type { Holding } from '@/lib/rebalance/types';
  * 평균, 매도 이후에도 값이 바뀌지 않음 — lib/rebalance/grouping.ts)을 그대로
  * 따른다.
  *
- * 한계: 실제 국세청 신고는 매수·매도 각 시점의 환율로 원화 환산한 손익을
- * 기준으로 하는데, 이 앱은 매도 시점의 환율을 별도로 기록하지 않는다.
- * 그래서 이 함수는 USD 기준 손익만 계산하고, 화면에서 원화 환산이 필요하면
- * estimateUsCapitalGainsTax()에 현재 환율(참고용)을 넣어 대략적인 값만 보여준다.
+ * 원화 환산: 실제 국세청 신고는 매도금액·매입원가를 각각 그 시점의 환율로
+ * 원화 환산한 뒤 차액을 손익으로 본다. 이 앱은 매수 lot의 매입 시 환율과
+ * (이제) 매도 lot의 매도 시 환율을 모두 입력받을 수 있으므로, 둘 다 기록돼
+ * 있으면 그 값으로 정확히 계산한다. 둘 중 하나라도 기록이 없으면(과거 데이터,
+ * 또는 입력을 생략한 경우) 그 부분만 현재 환율로 대신 계산하고
+ * hasApproximatedKrw로 그 사실을 알려준다.
  *
  * 출처: 소득세법 제118조의2 이하(국외자산 양도소득), 연 250만원 기본공제, 세율 22%(지방세 포함)
  */
@@ -24,45 +26,69 @@ export interface YearlyUsRealizedGain {
   year: number;
   /** 매도 종목 통화(USD) 기준 실현손익 합계(양수=이익, 음수=손실) */
   realizedGainUsd: number;
+  /** 원화 환산 실현손익 합계(가능하면 매수·매도 각 시점 환율 사용, 아니면 현재 환율로 대체) */
+  realizedGainKrw: number;
+  /** 이 연도 계산에 현재 환율 대체가 하나라도 섞여 있는지(=완전히 정확하진 않을 수 있음) */
+  hasApproximatedKrw: boolean;
   /** 이 해에 있었던 미국주식 매도 건수 */
   sellCount: number;
 }
 
-export function calculateUsRealizedGainsByYear(holdings: Holding[]): YearlyUsRealizedGain[] {
-  const byYear = new Map<number, { gain: number; count: number }>();
+export function calculateUsRealizedGainsByYear(
+  holdings: Holding[],
+  fallbackUsdKrwRate: number
+): YearlyUsRealizedGain[] {
+  const byYear = new Map<number, { gainUsd: number; gainKrw: number; count: number; approximated: boolean }>();
 
   for (const group of groupHoldings(holdings)) {
     if (group.market !== 'US') continue;
+
+    const buyFxRate = group.avgPurchaseFxRate ?? fallbackUsdKrwRate;
+    const buyFxIsApproximated = group.avgPurchaseFxRate === undefined;
+
     for (const lot of group.lots) {
       if ((lot.lotType ?? 'buy') !== 'sell') continue;
+
       const ts = lotCreatedAt(lot);
       const year = ts > 0 ? new Date(ts).getFullYear() : new Date().getFullYear();
-      const gain = (lot.avgPrice - group.avgBuyPrice) * lot.quantity;
-      const entry = byYear.get(year) ?? { gain: 0, count: 0 };
-      entry.gain += gain;
+      const gainUsd = (lot.avgPrice - group.avgBuyPrice) * lot.quantity;
+
+      const sellFxRate = lot.purchaseFxRate ?? fallbackUsdKrwRate;
+      const sellFxIsApproximated = lot.purchaseFxRate === undefined;
+
+      const proceedsKrw = lot.avgPrice * lot.quantity * sellFxRate;
+      const costBasisKrw = group.avgBuyPrice * lot.quantity * buyFxRate;
+      const gainKrw = proceedsKrw - costBasisKrw;
+
+      const entry = byYear.get(year) ?? { gainUsd: 0, gainKrw: 0, count: 0, approximated: false };
+      entry.gainUsd += gainUsd;
+      entry.gainKrw += gainKrw;
       entry.count += 1;
+      entry.approximated = entry.approximated || buyFxIsApproximated || sellFxIsApproximated;
       byYear.set(year, entry);
     }
   }
 
   return Array.from(byYear.entries())
-    .map(([year, v]) => ({ year, realizedGainUsd: v.gain, sellCount: v.count }))
+    .map(([year, v]) => ({
+      year,
+      realizedGainUsd: v.gainUsd,
+      realizedGainKrw: v.gainKrw,
+      hasApproximatedKrw: v.approximated,
+      sellCount: v.count,
+    }))
     .sort((a, b) => b.year - a.year);
 }
 
 export interface UsCapitalGainsEstimate {
-  realizedGainUsd: number;
-  /** 참고용 원화 환산액(현재 환율 기준 — 실제 신고는 각 매도 시점 환율을 씀) */
-  realizedGainKrw: number;
   /** 연 250만원 기본공제를 뺀 과세대상 금액(0 미만이면 0) */
   taxableGainKrw: number;
   estimatedTaxKrw: number;
 }
 
-/** 연간 실현손익(USD)을 현재 환율로 원화 환산해 기본공제·예상세액을 추정한다(참고용). */
-export function estimateUsCapitalGainsTax(realizedGainUsd: number, usdKrwRate: number): UsCapitalGainsEstimate {
-  const realizedGainKrw = realizedGainUsd * usdKrwRate;
+/** 원화 환산된 연간 실현손익에서 기본공제·예상세액을 계산한다(참고용). */
+export function estimateUsCapitalGainsTax(realizedGainKrw: number): UsCapitalGainsEstimate {
   const taxableGainKrw = Math.max(0, realizedGainKrw - US_CAPITAL_GAINS_ANNUAL_DEDUCTION_KRW);
   const estimatedTaxKrw = taxableGainKrw * US_CAPITAL_GAINS_TAX_RATE;
-  return { realizedGainUsd, realizedGainKrw, taxableGainKrw, estimatedTaxKrw };
+  return { taxableGainKrw, estimatedTaxKrw };
 }

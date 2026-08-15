@@ -105,7 +105,8 @@
     "deleteLotConfirm": "Delete this buy/sell entry? This cannot be undone.",
     "refreshAllPrices": "Refresh all",
     "searchPlaceholder": "Search by ticker or name",
-    "noSearchResults": "No matching holdings."
+    "noSearchResults": "No matching holdings.",
+    "sellFxRate": "FX rate at sale (USD/KRW)"
   },
   "calculator": {
     "title": "Rebalance Calculator",
@@ -174,7 +175,8 @@
     "usGainsRealizedKrw": "KRW equivalent (reference, current rate)",
     "usGainsTaxable": "Above deduction",
     "usGainsEstimatedTax": "Estimated tax (22%)",
-    "usGainsDeductionNote": "The first 2,500,000 KRW ({deduction} KRW) per year is tax-free. The KRW conversion uses today's rate, not the actual sale-date rate, so it may differ from the real filing amount."
+    "usGainsDeductionNote": "The first 2,500,000 KRW ({deduction} KRW) per year is tax-free. The KRW conversion uses today's rate, not the actual sale-date rate, so it may differ from the real filing amount.",
+    "usGainsApproximatedNote": "* Entries without a recorded buy or sell FX rate were calculated using today's rate instead (may not be exact)."
   },
   "trend": {
     "title": "Monthly Asset Trend",

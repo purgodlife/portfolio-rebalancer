@@ -53,8 +53,14 @@ export function groupHoldings(holdings: Holding[]): HoldingGroup[] {
     const buyCostSum = buyLots.reduce((s, l) => s + l.quantity * l.avgPrice, 0);
     const avgBuyPrice = totalBuyQuantity > 0 ? buyCostSum / totalBuyQuantity : 0;
 
-    const buyFxCostSum = buyLots.reduce(
-      (s, l) => s + l.quantity * l.avgPrice * (l.purchaseFxRate ?? 0),
+    // 매입 시 환율을 입력한 매수 lot들만 골라서 가중평균한다. 입력 안 한 lot을
+    // 0원으로 취급해 희석시키면 안 되므로(그러면 평균이 실제보다 훨씬 낮게
+    // 나오거나, 전부 미입력이면 0이 되어버림), 분모도 "환율을 입력한 lot들의
+    // 매입원가"로 맞춘다. 환율을 입력한 매수 lot이 하나도 없으면 undefined.
+    const buyLotsWithFxRate = buyLots.filter((l) => l.purchaseFxRate !== undefined);
+    const buyFxCostBasis = buyLotsWithFxRate.reduce((s, l) => s + l.quantity * l.avgPrice, 0);
+    const buyFxCostSum = buyLotsWithFxRate.reduce(
+      (s, l) => s + l.quantity * l.avgPrice * (l.purchaseFxRate as number),
       0
     );
 
@@ -74,7 +80,7 @@ export function groupHoldings(holdings: Holding[]): HoldingGroup[] {
       totalSellQuantity,
       lots: sorted,
       avgPurchaseFxRate:
-        latest.currency === 'USD' && buyCostSum > 0 ? buyFxCostSum / buyCostSum : undefined,
+        latest.currency === 'USD' && buyFxCostBasis > 0 ? buyFxCostSum / buyFxCostBasis : undefined,
     });
   }
 

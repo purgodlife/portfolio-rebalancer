@@ -53,8 +53,12 @@ export interface Holding {
   quantity: number;
   currentPrice: number;
   /**
-   * 매입 시점 USD/KRW 환율 (currency가 USD인 종목에만 의미가 있음).
-   * 원화 환산 손익을 주가 변동분과 환율 변동분(환차익)으로 나눠 보여주는 데 쓰인다.
+   * 이 매수/매도 거래 시점의 USD/KRW 환율 (currency가 USD인 종목에만 의미가
+   * 있음). 매수(buy) lot에서는 "매입 시 환율", 매도(sell) lot에서는 "매도 시
+   * 환율"을 뜻한다(필드명은 이 기능이 매수만 지원하던 시절 이름 그대로다).
+   * 원화 환산 손익을 주가 변동분과 환율 변동분(환차익)으로 나눠 보여주거나
+   * (lib/rebalance/grouping.ts), 미국주식 매도 실현손익을 정확히 원화
+   * 환산하는 데(lib/tax/usRealizedGains.ts) 쓰인다.
    */
   purchaseFxRate?: number;
   /**
