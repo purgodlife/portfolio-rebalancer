@@ -96,6 +96,15 @@ export function useHoldings(): Holding[] {
   return all.filter((h) => categoryIds.has(h.categoryId));
 }
 
+/**
+ * 계좌 구분 없이 모든 보유종목을 반환한다. "전 계좌 통합 리밸런싱" 모드에서
+ * lib/rebalance/unifiedRebalance.ts의 mergeAccountsForUnifiedRebalance()에
+ * 넘길 원본 데이터를 만드는 용도로만 쓴다.
+ */
+export function useAllHoldings(): Holding[] {
+  return useLiveQuery(() => getDb().holdings.toArray(), [], []) ?? [];
+}
+
 export async function addHolding(holding: Omit<Holding, 'id' | 'createdAt'>): Promise<void> {
   await getDb().holdings.add({ ...holding, id: uid('hold'), createdAt: Date.now() });
 }

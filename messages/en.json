@@ -129,7 +129,14 @@
     "colTax": "Tax",
     "colNetAmount": "Net / total cost",
     "costNote": "The US capital gains estimate is based on this single sale only. Your actual annual filing (due the following May) combines all sales and the 2,500,000 KRW annual deduction, so the real amount may differ.",
-    "usCapitalGainsNote": "This includes a US stock sale. The capital gains estimate is reference only, not tax advice."
+    "usCapitalGainsNote": "This includes a US stock sale. The capital gains estimate is reference only, not tax advice.",
+    "scopeLabel": "Rebalance scope",
+    "scopePerAccount": "This account only",
+    "scopeUnified": "All accounts combined",
+    "unifiedHint": "Combines holdings across all accounts, merging categories with the same name into one. Using consistent category names across accounts gives a more accurate result.",
+    "unifiedWarningTitle": "Categories with the same name have different targets across accounts — using the average",
+    "unifiedWarningItem": "\"{name}\": {details} → averaged to {avg}%",
+    "unifiedMultiAccountNote": "Split across accounts: {accounts} — execute the actual trade in whichever account you choose."
   },
   "settings": {
     "title": "Settings & Backup",

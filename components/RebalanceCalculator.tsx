@@ -2,9 +2,10 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useCategories, useHoldings } from '@/lib/storage/hooks';
+import { useCategories, useHoldings, useAllCategories, useAllHoldings, useAccounts } from '@/lib/storage/hooks';
 import { calculateRebalance } from '@/lib/rebalance';
 import { groupHoldings } from '@/lib/rebalance/grouping';
+import { mergeAccountsForUnifiedRebalance } from '@/lib/rebalance/unifiedRebalance';
 import { useUsdKrwRate, FALLBACK_USD_KRW_RATE } from '@/lib/market/fxRate';
 import { primaryLabel, secondaryLabel } from '@/lib/format/holdingLabel';
 import { calculateTradeCost } from '@/lib/tax/tradeCosts';
@@ -14,12 +15,33 @@ import InfoTooltip from './InfoTooltip';
 import OnboardingChecklist from './OnboardingChecklist';
 
 const TOLERANCE = 0.05;
+const UNIFIED_MODE_STORAGE_KEY = 'portfolio-rebalancer:unifiedRebalance';
 
 export default function RebalanceCalculator() {
   const t = useTranslations('calculator');
   const ta = useTranslations('allocation');
   const categories = useCategories();
   const holdings = useHoldings();
+  const accounts = useAccounts();
+  const allCategories = useAllCategories();
+  const allHoldings = useAllHoldings();
+
+  const [unifiedMode, setUnifiedMode] = useState(false);
+  useEffect(() => {
+    setUnifiedMode(window.localStorage.getItem(UNIFIED_MODE_STORAGE_KEY) === '1');
+  }, []);
+  function changeUnifiedMode(value: boolean) {
+    setUnifiedMode(value);
+    window.localStorage.setItem(UNIFIED_MODE_STORAGE_KEY, value ? '1' : '0');
+  }
+
+  const unifiedMerge = useMemo(() => {
+    if (!unifiedMode) return null;
+    return mergeAccountsForUnifiedRebalance(accounts, allCategories, allHoldings);
+  }, [unifiedMode, accounts, allCategories, allHoldings]);
+
+  const activeCategories = unifiedMerge ? unifiedMerge.categories : categories;
+  const activeHoldings = unifiedMerge ? unifiedMerge.holdings : holdings;
 
   const [depositAmount, setDepositAmount] = useState('1000000');
   const [depositCurrency, setDepositCurrency] = useState<Currency>('KRW');
@@ -37,42 +59,87 @@ export default function RebalanceCalculator() {
     }
   }, [fx.rate, rateTouchedByUser]);
 
-  const totalPercent = categories.reduce((s, c) => s + c.targetPercent, 0);
-  const isAllocationValid = categories.length > 0 && Math.abs(totalPercent - 100) < TOLERANCE;
+  const totalPercent = activeCategories.reduce((s, c) => s + c.targetPercent, 0);
+  const isAllocationValid = activeCategories.length > 0 && Math.abs(totalPercent - 100) < TOLERANCE;
 
   const result = useMemo(() => {
     const amount = parseFloat(depositAmount);
     const rate = parseFloat(usdKrwRate);
     if (Number.isNaN(amount) || Number.isNaN(rate) || !isAllocationValid) return null;
     return calculateRebalance({
-      categories,
-      holdings,
+      categories: activeCategories,
+      holdings: activeHoldings,
       depositAmount: amount,
       depositCurrency,
       usdKrwRate: rate,
       allowSell,
     });
-  }, [categories, holdings, depositAmount, depositCurrency, usdKrwRate, allowSell, isAllocationValid]);
+  }, [activeCategories, activeHoldings, depositAmount, depositCurrency, usdKrwRate, allowSell, isAllocationValid]);
 
   // 매도 시 실현손익(해외주식 양도세 추정용)을 구하려면 평단가가 필요한데,
   // RebalanceResult.actions에는 없으므로 원본 보유종목을 다시 그룹핑해서 조회한다.
   const groupByKey = useMemo(() => {
     const map = new Map<string, { avgBuyPrice: number; currentPrice: number }>();
-    for (const g of groupHoldings(holdings)) {
+    for (const g of groupHoldings(activeHoldings)) {
       map.set(g.key, { avgBuyPrice: g.avgBuyPrice, currentPrice: g.currentPrice });
     }
     return map;
-  }, [holdings]);
+  }, [activeHoldings]);
 
   const feeRate = parseFloat(feeRatePercent) || 0;
 
-  const hasData = categories.length > 0 && holdings.length > 0;
+  const hasData = activeCategories.length > 0 && activeHoldings.length > 0;
   const hasUsSell = !!result?.actions.some((a) => a.action === 'sell' && a.market === 'US');
 
   return (
     <div className="space-y-5">
       <CurrentAccountBadge />
       <OnboardingChecklist hasCategories={categories.length > 0} hasHoldings={holdings.length > 0} />
+
+      <div className="card">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="text-sm font-medium text-gray-700">{t('scopeLabel')}</span>
+          <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1 text-sm">
+            <button
+              type="button"
+              className={`rounded-md px-3 py-1.5 ${
+                !unifiedMode ? 'bg-white font-medium text-gray-900 shadow-sm' : 'text-gray-500'
+              }`}
+              onClick={() => changeUnifiedMode(false)}
+            >
+              {t('scopePerAccount')}
+            </button>
+            <button
+              type="button"
+              className={`rounded-md px-3 py-1.5 ${
+                unifiedMode ? 'bg-white font-medium text-gray-900 shadow-sm' : 'text-gray-500'
+              }`}
+              onClick={() => changeUnifiedMode(true)}
+            >
+              {t('scopeUnified')}
+            </button>
+          </div>
+        </div>
+        {unifiedMode && <p className="mt-2 text-xs text-gray-500">{t('unifiedHint')}</p>}
+      </div>
+
+      {unifiedMode && unifiedMerge && unifiedMerge.warnings.length > 0 && (
+        <div className="card border-amber-200 bg-amber-50 text-amber-800">
+          <p className="text-sm font-medium">{t('unifiedWarningTitle')}</p>
+          <ul className="mt-1.5 space-y-1 text-xs">
+            {unifiedMerge.warnings.map((w) => (
+              <li key={w.categoryName}>
+                {t('unifiedWarningItem', {
+                  name: w.categoryName,
+                  details: w.targets.map((tg) => `${tg.accountName} ${tg.targetPercent}%`).join(', '),
+                  avg: w.averagedTargetPercent.toFixed(1),
+                })}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       <div className="card">
         <h2 className="text-lg font-semibold mb-1">{t('title')}</h2>
         <p className="text-sm text-gray-500 mb-4">{t('description')}</p>
@@ -141,7 +208,7 @@ export default function RebalanceCalculator() {
         </div>
       </div>
 
-      {categories.length > 0 && !isAllocationValid && (
+      {activeCategories.length > 0 && !isAllocationValid && (
         <div className="card border-red-300 bg-red-50 text-red-600">
           <p className="text-sm font-medium">{t('invalidAllocation')}</p>
           <p className="text-xs mt-1 text-red-500">
@@ -234,6 +301,15 @@ export default function RebalanceCalculator() {
                           <td className="table-cell">
                             <span className={a.market === 'KR' ? '' : 'font-mono'}>{primaryLabel(a)}</span>{' '}
                             <span className="font-mono text-gray-400">({secondaryLabel(a)})</span>
+                            {unifiedMode &&
+                              unifiedMerge &&
+                              (unifiedMerge.accountsByHoldingKey[a.holdingId]?.length ?? 0) > 1 && (
+                                <span className="mt-0.5 block text-[11px] text-amber-600">
+                                  {t('unifiedMultiAccountNote', {
+                                    accounts: unifiedMerge.accountsByHoldingKey[a.holdingId].join(', '),
+                                  })}
+                                </span>
+                              )}
                           </td>
                           <td className={`table-cell ${a.action === 'sell' ? 'text-red-600' : 'text-brand-600'}`}>
                             {a.action === 'buy' ? t('buy') : t('sell')}
