@@ -17,6 +17,7 @@ export default function NavBar() {
     { href: '/history', label: t('history') },
     { href: '/trend', label: t('trend') },
     { href: '/risk', label: t('risk') },
+    { href: '/tax-benefits', label: t('taxBenefits') },
     { href: '/settings', label: t('settings') },
     { href: '/disclaimer', label: t('disclaimer') },
   ];

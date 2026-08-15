@@ -23,7 +23,8 @@
     "disclaimer": "Terms",
     "history": "History",
     "trend": "Trend",
-    "risk": "Risk"
+    "risk": "Risk",
+    "taxBenefits": "Tax Benefits"
   },
   "disclaimer": {
     "title": "Please review before using this app",
@@ -33,7 +34,8 @@
     "point3": "You are solely responsible for your investment decisions and their outcomes.",
     "point4": "No data is stored on any server; everything stays in your browser only.",
     "agree": "I have read and agree to the above.",
-    "continue": "Agree and continue"
+    "continue": "Agree and continue",
+    "point5": "Tax-credit and tax-free figures in the Tax Benefit Calculator are for reference only, not tax advice. Verify exact amounts via National Tax Service Hometax or a tax professional."
   },
   "allocation": {
     "title": "Target Asset Allocation",
@@ -238,5 +240,36 @@
     "colLinks": "Links",
     "loadQuote": "Load price",
     "quoteError": "Failed"
+  },
+  "taxBenefits": {
+    "title": "Tax Benefit Calculator",
+    "description": "Estimate pension-account tax credits and ISA tax-free limits under currently effective Korean tax law.",
+    "notAdviceWarning": "This is reference information only, not tax advice. Actual results depend on your full income and deduction profile. Check the National Tax Service Hometax (year-end settlement preview) or a tax professional for exact figures. Proposed reforms that have not yet passed the National Assembly (e.g. a proposed higher ISA contribution cap) are not included.",
+    "pensionTitle": "Pension Savings & IRP Tax Credit",
+    "pensionInfo": "Contributions to pension savings and IRP accounts, up to a set limit, qualify for a 13.2–16.5% tax credit on your annual income tax filing.",
+    "totalSalary": "Annual gross salary",
+    "totalSalaryPlaceholder": "Leave blank if not a salaried employee",
+    "pensionSavingsContribution": "Pension savings contribution",
+    "limitHint": "limit {limit}",
+    "irpContribution": "IRP contribution",
+    "isaTransferAmount": "Amount transferred from matured ISA (optional)",
+    "isaTransferInfo": "Transferring matured ISA funds into a pension account within 60 days adds 10% of the transferred amount (up to 3,000,000 KRW) to your tax-credit limit.",
+    "appliedRate": "Applied rate",
+    "eligibleTotal": "Eligible amount",
+    "estimatedCredit": "Estimated tax credit",
+    "remainingRoom": "Remaining room",
+    "pensionLimitNote": "Pension savings alone caps at 6,000,000 KRW; combined with IRP the cap is {total} (excluding the ISA-transfer bonus).",
+    "isaTitle": "ISA Tax-Free / Reduced-Rate Tax",
+    "isaInfo": "Net gains inside an ISA (interest, dividends, capital gains) are tax-free up to a limit, and taxed at a reduced 9.9% above it — lower than the standard 15.4% financial income tax.",
+    "isaType": "ISA type",
+    "isaTypeGeneral": "General",
+    "isaTypePreferential": "Low-income / Farmer-fisher",
+    "realizedGain": "Realized gain in ISA",
+    "nonTaxableLimit": "Tax-free limit",
+    "taxableExcess": "Taxable excess",
+    "estimatedTax": "Estimated tax (9.9%)",
+    "taxSavingsVsGeneral": "Savings vs. regular account",
+    "sourceNts": "Source: National Tax Service, \"Pension Account Tax Credit\"; Income Tax Act Art. 59-3",
+    "sourceIsa": "Source: Restriction of Special Taxation Act Art. 91-18 (ISA tax treatment)"
   }
 }

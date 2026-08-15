@@ -10,6 +10,7 @@ export default async function DisclaimerPage() {
         <li>{t('point2')}</li>
         <li>{t('point3')}</li>
         <li>{t('point4')}</li>
+        <li>{t('point5')}</li>
       </ul>
     </div>
   );
