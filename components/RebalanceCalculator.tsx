@@ -46,7 +46,6 @@ export default function RebalanceCalculator() {
   const [depositAmount, setDepositAmount] = useState('1000000');
   const [depositCurrency, setDepositCurrency] = useState<Currency>('KRW');
   const [allowSell, setAllowSell] = useState(false);
-  const [feeRatePercent, setFeeRatePercent] = useState('0');
   const [applyCosts, setApplyCosts] = useState(false);
   const fx = useUsdKrwRate();
   const [usdKrwRate, setUsdKrwRate] = useState(String(FALLBACK_USD_KRW_RATE));
@@ -85,8 +84,6 @@ export default function RebalanceCalculator() {
     }
     return map;
   }, [activeHoldings]);
-
-  const feeRate = parseFloat(feeRatePercent) || 0;
 
   const hasData = activeCategories.length > 0 && activeHoldings.length > 0;
   const hasUsSell = !!result?.actions.some((a) => a.action === 'sell' && a.market === 'US');
@@ -189,17 +186,7 @@ export default function RebalanceCalculator() {
           </label>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3 items-end border-t border-gray-100 pt-4">
-          <div>
-            <label className="block text-xs text-gray-500 mb-1">{t('feeRatePercent')}</label>
-            <input
-              type="number"
-              step="0.001"
-              className="input"
-              value={feeRatePercent}
-              onChange={(e) => setFeeRatePercent(e.target.value)}
-            />
-          </div>
+        <div className="mt-4 border-t border-gray-100 pt-4">
           <label className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={applyCosts} onChange={(e) => setApplyCosts(e.target.checked)} />
             {t('applyCosts')}{' '}
@@ -269,7 +256,6 @@ export default function RebalanceCalculator() {
                     <th className="table-cell">{t('colQuantity')}</th>
                     {applyCosts && (
                       <>
-                        <th className="table-cell">{t('colFee')}</th>
                         <th className="table-cell">{t('colTax')}</th>
                         <th className="table-cell">{t('colNetAmount')}</th>
                       </>
@@ -291,7 +277,6 @@ export default function RebalanceCalculator() {
                           market: a.market,
                           action: a.action,
                           amount: a.amountInHoldingCurrency,
-                          feeRatePercent: feeRate,
                           realizedGain,
                         });
                       }
@@ -324,9 +309,6 @@ export default function RebalanceCalculator() {
                           </td>
                           {applyCosts && cost && (
                             <>
-                              <td className="table-cell text-gray-500">
-                                {Math.round(cost.feeAmount).toLocaleString()} {a.currency}
-                              </td>
                               <td className="table-cell text-gray-500">
                                 {tax > 0 ? `${Math.round(tax).toLocaleString()} ${a.currency}` : '-'}
                               </td>

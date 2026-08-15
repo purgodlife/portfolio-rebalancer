@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation';
 import { routing } from '@/i18n/routing';
 import NavBar from '@/components/NavBar';
 import DisclaimerGate from '@/components/DisclaimerGate';
+import AdSlot from '@/components/AdSlot';
 import { AccountProvider } from '@/lib/storage/accountContext';
 
 export function generateStaticParams() {
@@ -36,6 +37,7 @@ export default async function LocaleLayout({
         <NavBar />
         <DisclaimerGate>
           <main className="mx-auto max-w-5xl px-4 py-6">{children}</main>
+          <AdSlot />
         </DisclaimerGate>
       </AccountProvider>
     </NextIntlClientProvider>

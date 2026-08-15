@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { aggregateMonthly, computeSnapshot, type PortfolioSnapshot } from './snapshot';
+import { aggregateMonthly, aggregateMonthlyAcrossAccounts, computeSnapshot, type PortfolioSnapshot } from './snapshot';
 import type { Category, Holding } from './types';
 
 const categories: Category[] = [
@@ -55,5 +55,37 @@ describe('aggregateMonthly', () => {
 
   it('handles no snapshots', () => {
     expect(aggregateMonthly([])).toEqual([]);
+  });
+});
+
+describe('aggregateMonthlyAcrossAccounts', () => {
+  it('sums the latest-per-month value of each account for months both have data', () => {
+    const snapshots: PortfolioSnapshot[] = [
+      { id: 'acc-1:2026-06-05', date: '2026-06-05', totalValueBase: 1_000_000, byCategory: {}, usdKrwRate: 1300, accountId: 'acc-1' },
+      { id: 'acc-1:2026-07-02', date: '2026-07-02', totalValueBase: 1_200_000, byCategory: {}, usdKrwRate: 1300, accountId: 'acc-1' },
+      { id: 'acc-2:2026-06-10', date: '2026-06-10', totalValueBase: 500_000, byCategory: {}, usdKrwRate: 1300, accountId: 'acc-2' },
+      { id: 'acc-2:2026-07-15', date: '2026-07-15', totalValueBase: 600_000, byCategory: {}, usdKrwRate: 1300, accountId: 'acc-2' },
+    ];
+    expect(aggregateMonthlyAcrossAccounts(snapshots)).toEqual([
+      { month: '2026-06', totalValueBase: 1_500_000 },
+      { month: '2026-07', totalValueBase: 1_800_000 },
+    ]);
+  });
+
+  it('only counts an account for months it actually has a snapshot in', () => {
+    const snapshots: PortfolioSnapshot[] = [
+      { id: 'acc-1:2026-06-05', date: '2026-06-05', totalValueBase: 1_000_000, byCategory: {}, usdKrwRate: 1300, accountId: 'acc-1' },
+      { id: 'acc-1:2026-07-02', date: '2026-07-02', totalValueBase: 1_200_000, byCategory: {}, usdKrwRate: 1300, accountId: 'acc-1' },
+      // acc-2 only started being tracked in July
+      { id: 'acc-2:2026-07-15', date: '2026-07-15', totalValueBase: 600_000, byCategory: {}, usdKrwRate: 1300, accountId: 'acc-2' },
+    ];
+    expect(aggregateMonthlyAcrossAccounts(snapshots)).toEqual([
+      { month: '2026-06', totalValueBase: 1_000_000 },
+      { month: '2026-07', totalValueBase: 1_800_000 },
+    ]);
+  });
+
+  it('handles no snapshots', () => {
+    expect(aggregateMonthlyAcrossAccounts([])).toEqual([]);
   });
 });

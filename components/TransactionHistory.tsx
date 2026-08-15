@@ -3,6 +3,10 @@
 import { useTranslations } from 'next-intl';
 import { useCategories, useHoldings, removeHolding } from '@/lib/storage/hooks';
 import { lotCreatedAt } from '@/lib/rebalance/lotTime';
+import { calculateUsRealizedGainsByYear, estimateUsCapitalGainsTax } from '@/lib/tax/usRealizedGains';
+import { US_CAPITAL_GAINS_ANNUAL_DEDUCTION_KRW } from '@/lib/tax/tradeCosts';
+import { useUsdKrwRate, FALLBACK_USD_KRW_RATE } from '@/lib/market/fxRate';
+import InfoTooltip from './InfoTooltip';
 import CurrentAccountBadge from './CurrentAccountBadge';
 
 export default function TransactionHistory() {
@@ -11,6 +15,10 @@ export default function TransactionHistory() {
   const tc = useTranslations('common');
   const categories = useCategories();
   const holdings = useHoldings();
+  const fx = useUsdKrwRate();
+  const usdKrwRate = fx.rate ?? FALLBACK_USD_KRW_RATE;
+
+  const yearlyUsGains = calculateUsRealizedGainsByYear(holdings);
 
   function categoryName(id: string) {
     return categories.find((c) => c.id === id)?.name ?? '-';
@@ -23,6 +31,59 @@ export default function TransactionHistory() {
       <CurrentAccountBadge />
       <h2 className="text-lg font-semibold mb-1">{t('title')}</h2>
       <p className="text-sm text-gray-500 mb-4">{t('description')}</p>
+
+      {yearlyUsGains.length > 0 && (
+        <div className="mb-5 rounded-md border border-gray-200 p-4">
+          <h3 className="text-sm font-semibold text-gray-900">
+            {t('usGainsTitle')} <InfoTooltip text={t('usGainsInfo')} source={t('usGainsSource')} />
+          </h3>
+          <p className="mt-1 text-xs text-gray-500">{t('usGainsDescription')}</p>
+          <div className="mt-3 overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr>
+                  <th className="table-cell">{t('usGainsYear')}</th>
+                  <th className="table-cell">{t('usGainsSellCount')}</th>
+                  <th className="table-cell">{t('usGainsRealizedUsd')}</th>
+                  <th className="table-cell">{t('usGainsRealizedKrw')}</th>
+                  <th className="table-cell">{t('usGainsTaxable')}</th>
+                  <th className="table-cell">{t('usGainsEstimatedTax')}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {yearlyUsGains.map((y) => {
+                  const est = estimateUsCapitalGainsTax(y.realizedGainUsd, usdKrwRate);
+                  const over = est.taxableGainKrw > 0;
+                  return (
+                    <tr key={y.year}>
+                      <td className="table-cell font-medium">{y.year}</td>
+                      <td className="table-cell">{y.sellCount}</td>
+                      <td
+                        className={`table-cell ${y.realizedGainUsd >= 0 ? 'text-green-600' : 'text-red-500'}`}
+                      >
+                        {y.realizedGainUsd >= 0 ? '+' : ''}
+                        {Math.round(y.realizedGainUsd).toLocaleString()} USD
+                      </td>
+                      <td className="table-cell text-gray-500">
+                        {Math.round(est.realizedGainKrw).toLocaleString()} KRW
+                      </td>
+                      <td className={`table-cell ${over ? 'text-amber-600 font-medium' : 'text-gray-400'}`}>
+                        {Math.round(est.taxableGainKrw).toLocaleString()} KRW
+                      </td>
+                      <td className={`table-cell ${over ? 'text-amber-600 font-medium' : 'text-gray-400'}`}>
+                        {Math.round(est.estimatedTaxKrw).toLocaleString()} KRW
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-2 text-xs text-gray-400">
+            {t('usGainsDeductionNote', { deduction: US_CAPITAL_GAINS_ANNUAL_DEDUCTION_KRW.toLocaleString() })}
+          </p>
+        </div>
+      )}
 
       {sorted.length === 0 ? (
         <p className="text-sm text-gray-500">{t('empty')}</p>

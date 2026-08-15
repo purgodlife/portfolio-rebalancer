@@ -228,6 +228,14 @@ export function useSnapshots(): PortfolioSnapshot[] {
   return all.filter((s) => resolveAccountId(s.accountId) === selectedAccountId);
 }
 
+/**
+ * 계좌 구분 없이 모든 스냅샷을 반환한다. "전 계좌 합산" 자산추이 화면에서
+ * lib/rebalance/snapshot.ts의 aggregateMonthlyAcrossAccounts()에 넘길 용도로만 쓴다.
+ */
+export function useAllSnapshots(): PortfolioSnapshot[] {
+  return useLiveQuery(() => getDb().snapshots.orderBy('date').toArray(), [], []) ?? [];
+}
+
 export async function upsertSnapshot(snapshot: PortfolioSnapshot): Promise<void> {
   await getDb().snapshots.put(snapshot);
 }

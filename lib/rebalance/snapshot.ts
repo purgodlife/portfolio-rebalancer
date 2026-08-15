@@ -68,3 +68,34 @@ export function aggregateMonthly(snapshots: PortfolioSnapshot[]): MonthlyPoint[]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([month, s]) => ({ month, totalValueBase: s.totalValueBase }));
 }
+
+/**
+ * 여러 계좌의 스냅샷을 "전 계좌 합산" 자산추이로 묶는다. 계좌별로 먼저
+ * aggregateMonthly()를 적용해 각 계좌의 월별 대표값을 구한 뒤, 같은 달끼리
+ * 계좌 값을 더한다.
+ *
+ * 주의: 어떤 계좌를 그 달에 한 번도 열어보지 않았으면(스냅샷이 그 계좌에서
+ * 하루도 기록되지 않았으면) 그 달의 합계에는 그 계좌 몫이 빠진다 — 계좌별
+ * 스냅샷 자체가 "그 계좌를 화면에서 본 날"에만 쌓이는 구조라 생기는 자연스러운
+ * 한계다.
+ */
+export function aggregateMonthlyAcrossAccounts(snapshots: PortfolioSnapshot[]): MonthlyPoint[] {
+  const byAccount = new Map<string, PortfolioSnapshot[]>();
+  for (const s of snapshots) {
+    const accountId = s.accountId ?? 'unknown';
+    const arr = byAccount.get(accountId) ?? [];
+    arr.push(s);
+    byAccount.set(accountId, arr);
+  }
+
+  const totalsByMonth = new Map<string, number>();
+  for (const accountSnapshots of byAccount.values()) {
+    for (const point of aggregateMonthly(accountSnapshots)) {
+      totalsByMonth.set(point.month, (totalsByMonth.get(point.month) ?? 0) + point.totalValueBase);
+    }
+  }
+
+  return [...totalsByMonth.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([month, totalValueBase]) => ({ month, totalValueBase }));
+}

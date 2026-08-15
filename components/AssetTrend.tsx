@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useSnapshots } from '@/lib/storage/hooks';
-import { aggregateMonthly } from '@/lib/rebalance/snapshot';
+import { useSnapshots, useAllSnapshots } from '@/lib/storage/hooks';
+import { aggregateMonthly, aggregateMonthlyAcrossAccounts } from '@/lib/rebalance/snapshot';
 import { buildIndexedComparison } from '@/lib/rebalance/benchmarkCompare';
 import { fetchBenchmarkMonthlySeries, type BenchmarkKey } from '@/lib/market/benchmark';
 import SimpleLineChart from './SimpleLineChart';
@@ -15,11 +15,26 @@ function formatManwon(v: number): string {
 }
 
 const BENCHMARK_OPTIONS: BenchmarkKey[] = ['kospi', 'sp500', 'nasdaq'];
+const TREND_SCOPE_STORAGE_KEY = 'portfolio-rebalancer:trendScope';
+
+type TrendScope = 'account' | 'all';
 
 export default function AssetTrend() {
   const t = useTranslations('trend');
   const snapshots = useSnapshots();
-  const monthly = aggregateMonthly(snapshots);
+  const allSnapshots = useAllSnapshots();
+
+  const [scope, setScope] = useState<TrendScope>('account');
+  useEffect(() => {
+    const stored = window.localStorage.getItem(TREND_SCOPE_STORAGE_KEY);
+    if (stored === 'all' || stored === 'account') setScope(stored);
+  }, []);
+  function changeScope(value: TrendScope) {
+    setScope(value);
+    window.localStorage.setItem(TREND_SCOPE_STORAGE_KEY, value);
+  }
+
+  const monthly = scope === 'all' ? aggregateMonthlyAcrossAccounts(allSnapshots) : aggregateMonthly(snapshots);
 
   const [benchmark, setBenchmark] = useState<BenchmarkKey | 'none'>('none');
   const [benchmarkSeries, setBenchmarkSeries] = useState<Awaited<ReturnType<typeof fetchBenchmarkMonthlySeries>>>(null);
@@ -54,9 +69,35 @@ export default function AssetTrend() {
 
   return (
     <div className="card">
-      <CurrentAccountBadge />
-      <h2 className="text-lg font-semibold mb-1">{t('title')}</h2>
-      <p className="text-sm text-gray-500 mb-4">{t('description')}</p>
+      {scope === 'account' && <CurrentAccountBadge />}
+
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <h2 className="text-lg font-semibold mb-1">{t('title')}</h2>
+          <p className="text-sm text-gray-500">{t('description')}</p>
+        </div>
+        <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1 text-sm">
+          <button
+            type="button"
+            className={`rounded-md px-3 py-1.5 ${
+              scope === 'account' ? 'bg-white font-medium text-gray-900 shadow-sm' : 'text-gray-500'
+            }`}
+            onClick={() => changeScope('account')}
+          >
+            {t('scopePerAccount')}
+          </button>
+          <button
+            type="button"
+            className={`rounded-md px-3 py-1.5 ${
+              scope === 'all' ? 'bg-white font-medium text-gray-900 shadow-sm' : 'text-gray-500'
+            }`}
+            onClick={() => changeScope('all')}
+          >
+            {t('scopeAllAccounts')}
+          </button>
+        </div>
+      </div>
+      {scope === 'all' && <p className="mb-4 -mt-2 text-xs text-gray-500">{t('scopeAllAccountsHint')}</p>}
 
       {monthly.length === 0 ? (
         <p className="text-sm text-gray-500">{t('empty')}</p>

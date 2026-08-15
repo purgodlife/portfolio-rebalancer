@@ -11,6 +11,7 @@ export default async function SettingsDisclaimerPage() {
         <li>{t('point3')}</li>
         <li>{t('point4')}</li>
         <li>{t('point5')}</li>
+        <li>{t('point6')}</li>
       </ul>
     </div>
   );
