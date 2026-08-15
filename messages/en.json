@@ -48,7 +48,13 @@
     "targetPercent": "Target weight (%)",
     "addCategory": "Add category",
     "totalLabel": "Total",
-    "totalWarning": "Weights must add up to exactly 100% before you can use the rebalance calculator."
+    "totalWarning": "Weights must add up to exactly 100% before you can use the rebalance calculator.",
+    "copyFromLabel": "Copy from another account",
+    "copyFromPlaceholder": "Select account",
+    "copyButton": "Copy",
+    "copying": "Copying...",
+    "copyHint": "Categories with the same name will have their target percent overwritten; categories not present here will be added. Categories that only exist in this account are left untouched (nothing is deleted, so existing holdings stay safe).",
+    "copyConfirm": "Copy categories from \"{source}\"? Categories with the same name will have their target percent overwritten."
   },
   "holdings": {
     "title": "Holdings",

@@ -2,7 +2,14 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { useCategories, addCategory, updateCategory, removeCategory } from '@/lib/storage/hooks';
+import {
+  useCategories,
+  useAccounts,
+  addCategory,
+  updateCategory,
+  removeCategory,
+  copyCategoriesFromAccount,
+} from '@/lib/storage/hooks';
 import { useSelectedAccountId } from '@/lib/storage/accountContext';
 import CurrentAccountBadge from './CurrentAccountBadge';
 import type { Category } from '@/lib/rebalance/types';
@@ -14,8 +21,12 @@ export default function AllocationEditor() {
   const tc = useTranslations('common');
   const categories = useCategories();
   const accountId = useSelectedAccountId();
+  const accounts = useAccounts();
+  const otherAccounts = accounts.filter((a) => a.id !== accountId);
   const [newName, setNewName] = useState('');
   const [newPercent, setNewPercent] = useState('');
+  const [copySourceId, setCopySourceId] = useState('');
+  const [copying, setCopying] = useState(false);
 
   // 입력 중에는 로컬 상태만 바꾸고, blur 시점에만 저장한다.
   // (매 keystroke마다 IndexedDB에 쓰고 live query로 되돌아오는 구조면
@@ -59,12 +70,51 @@ export default function AllocationEditor() {
     setNewPercent('');
   }
 
+  async function handleCopy() {
+    if (!copySourceId) return;
+    const sourceName = accounts.find((a) => a.id === copySourceId)?.name ?? '';
+    if (!window.confirm(t('copyConfirm', { source: sourceName }))) return;
+    setCopying(true);
+    try {
+      await copyCategoriesFromAccount(copySourceId, accountId);
+    } finally {
+      setCopying(false);
+    }
+  }
+
   return (
     <div>
       <CurrentAccountBadge />
       <div className="card">
       <h2 className="text-lg font-semibold mb-1">{t('title')}</h2>
       <p className="text-sm text-gray-500 mb-4">{t('description')}</p>
+
+      {otherAccounts.length > 0 && (
+        <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md border border-gray-200 bg-gray-50 p-3">
+          <span className="text-sm text-gray-600">{t('copyFromLabel')}</span>
+          <select
+            className="input w-auto"
+            value={copySourceId}
+            onChange={(e) => setCopySourceId(e.target.value)}
+          >
+            <option value="">{t('copyFromPlaceholder')}</option>
+            {otherAccounts.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name}
+              </option>
+            ))}
+          </select>
+          <button
+            type="button"
+            className="btn-secondary text-sm disabled:opacity-50"
+            disabled={!copySourceId || copying}
+            onClick={handleCopy}
+          >
+            {copying ? t('copying') : t('copyButton')}
+          </button>
+          <p className="w-full text-xs text-gray-400">{t('copyHint')}</p>
+        </div>
+      )}
 
       <div className="space-y-2 mb-4">
         {categories.map((c) => (

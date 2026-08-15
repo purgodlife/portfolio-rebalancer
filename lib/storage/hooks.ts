@@ -87,6 +87,34 @@ export async function removeCategory(id: string): Promise<void> {
   });
 }
 
+/**
+ * 다른 계좌의 카테고리(이름+목표비중)를 이 계좌로 복사한다. 자산배분을
+ * 처음 설정할 때 이미 만들어둔 다른 계좌의 배분을 그대로 가져와 시작할 수
+ * 있게 해준다. 이름이 같은 카테고리가 이미 있으면 목표비중만 덮어쓰고,
+ * 없으면 새로 만든다. 기존 카테고리를 지우지 않으므로(따라서 보유종목이
+ * 연쇄 삭제될 일도 없으므로) 이미 보유종목이 들어있는 계좌에도 안전하게
+ * 쓸 수 있다. 대상 계좌에만 있는 카테고리는 그대로 유지된다.
+ */
+export async function copyCategoriesFromAccount(sourceAccountId: string, targetAccountId: string): Promise<void> {
+  const db = getDb();
+  await db.transaction('rw', db.categories, async () => {
+    const all = await db.categories.toArray();
+    const sourceCategories = all.filter((c) => resolveAccountId(c.accountId) === sourceAccountId);
+    const targetCategories = all.filter((c) => resolveAccountId(c.accountId) === targetAccountId);
+    const targetByName = new Map(targetCategories.map((c) => [c.name.trim(), c]));
+
+    for (const sc of sourceCategories) {
+      const name = sc.name.trim();
+      const existing = targetByName.get(name);
+      if (existing) {
+        await db.categories.put({ ...existing, targetPercent: sc.targetPercent });
+      } else {
+        await db.categories.add({ id: uid('cat'), name, targetPercent: sc.targetPercent, accountId: targetAccountId });
+      }
+    }
+  });
+}
+
 // ── 보유종목 — 현재 선택된 계좌에 속한 카테고리의 종목만 보여준다 ───────────
 
 export function useHoldings(): Holding[] {
