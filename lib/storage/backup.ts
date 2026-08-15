@@ -1,7 +1,7 @@
 'use client';
 
 import { getDb, type AppSettings, type WatchlistItem, type PortfolioSnapshot } from './db';
-import type { Category, Holding } from '@/lib/rebalance/types';
+import type { Account, Category, Holding } from '@/lib/rebalance/types';
 
 export interface BackupPayload {
   schemaVersion: 1;
@@ -12,17 +12,20 @@ export interface BackupPayload {
   settings: AppSettings[];
   /** 월별 자산추이 스냅샷. 이 필드가 없는 예전 백업 파일도 그대로 불러올 수 있다. */
   snapshots?: PortfolioSnapshot[];
+  /** 계좌(포트폴리오) 목록. 이 필드가 없는 예전 백업 파일도 그대로 불러올 수 있다. */
+  accounts?: Account[];
 }
 
 /** 현재 로컬 DB 전체를 JSON으로 직렬화한다. 서버 전송 없음. */
 export async function exportBackup(): Promise<BackupPayload> {
   const db = getDb();
-  const [categories, holdings, watchlist, settings, snapshots] = await Promise.all([
+  const [categories, holdings, watchlist, settings, snapshots, accounts] = await Promise.all([
     db.categories.toArray(),
     db.holdings.toArray(),
     db.watchlist.toArray(),
     db.settings.toArray(),
     db.snapshots.toArray(),
+    db.accounts.toArray(),
   ]);
   return {
     schemaVersion: 1,
@@ -32,6 +35,7 @@ export async function exportBackup(): Promise<BackupPayload> {
     watchlist,
     settings,
     snapshots,
+    accounts,
   };
 }
 
@@ -55,7 +59,8 @@ function isBackupPayload(data: unknown): data is BackupPayload {
     Array.isArray(d.categories) &&
     Array.isArray(d.holdings) &&
     Array.isArray(d.watchlist) &&
-    (d.snapshots === undefined || Array.isArray(d.snapshots))
+    (d.snapshots === undefined || Array.isArray(d.snapshots)) &&
+    (d.accounts === undefined || Array.isArray(d.accounts))
   );
 }
 
@@ -69,11 +74,7 @@ export async function importBackup(file: File): Promise<void> {
   const db = getDb();
   await db.transaction(
     'rw',
-    db.categories,
-    db.holdings,
-    db.watchlist,
-    db.settings,
-    db.snapshots,
+    [db.categories, db.holdings, db.watchlist, db.settings, db.snapshots, db.accounts],
     async () => {
       await Promise.all([
         db.categories.clear(),
@@ -81,6 +82,7 @@ export async function importBackup(file: File): Promise<void> {
         db.watchlist.clear(),
         db.settings.clear(),
         db.snapshots.clear(),
+        db.accounts.clear(),
       ]);
       await Promise.all([
         db.categories.bulkAdd(data.categories),
@@ -88,6 +90,7 @@ export async function importBackup(file: File): Promise<void> {
         db.watchlist.bulkAdd(data.watchlist),
         db.settings.bulkAdd(data.settings ?? []),
         db.snapshots.bulkAdd(data.snapshots ?? []),
+        db.accounts.bulkAdd(data.accounts ?? []),
       ]);
     }
   );

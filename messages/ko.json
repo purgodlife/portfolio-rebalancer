@@ -24,7 +24,8 @@
     "history": "거래내역",
     "trend": "자산추이",
     "risk": "리스크",
-    "taxBenefits": "세제혜택 계산기"
+    "taxBenefits": "세제혜택 계산기",
+    "accounts": "계좌 관리"
   },
   "disclaimer": {
     "title": "서비스 이용 전 꼭 확인해주세요",
@@ -111,7 +112,16 @@
     "colQuantity": "수량",
     "sellQuantityNote": "매도 수량은 목표 금액에 가장 가깝게 맞춘 정수 주식수입니다(정확히 일치하지 않을 수 있습니다).",
     "approxSharesPrefix": "≈",
-    "sharesUnit": "주"
+    "sharesUnit": "주",
+    "feeRatePercent": "매매수수료율(%, 편도)",
+    "applyCosts": "수수료/세금 반영",
+    "applyCostsInfo": "매도 시 국내주식은 증권거래세(0.20%), 해외주식은 이번 매도 실현손익에 22%를 곱한 참고용 양도소득세 추정치를 함께 보여줍니다. 매매수수료는 증권사마다 달라 직접 입력한 값을 그대로 사용합니다.",
+    "sourceTax": "출처: 증권거래세법 제8조, 소득세법 제118조의2(국외자산 양도소득)",
+    "colFee": "수수료",
+    "colTax": "세금",
+    "colNetAmount": "실수령/총비용",
+    "costNote": "해외주식 양도소득세 추정치는 이번 매도 건 하나만 기준으로 계산한 참고용 수치이며, 실제 세액은 해당 연도의 다른 매매 손익과 250만원 기본공제를 반영해 다음해 5월에 신고하는 금액과 다를 수 있습니다.",
+    "usCapitalGainsNote": "해외주식 매도가 포함되어 있습니다. 양도소득세 추정치는 세무 자문이 아니며 참고용입니다."
   },
   "settings": {
     "title": "설정 및 백업",
@@ -139,7 +149,16 @@
     "empty": "아직 쌓인 자산 스냅샷이 없습니다. 보유종목을 입력하고 며칠/몇 달 지나면 이 화면에 추이가 나타납니다.",
     "onlyOneNote": "아직 한 달치 데이터만 있어서 추이라기보다 현재 값입니다. 시간이 지나면 그래프가 채워집니다.",
     "month": "월",
-    "totalValue": "총 평가금액"
+    "totalValue": "총 평가금액",
+    "benchmarkLabel": "벤치마크 비교",
+    "benchmarkNone": "없음",
+    "benchmark_kospi": "KOSPI",
+    "benchmark_sp500": "S&P 500",
+    "benchmark_nasdaq": "나스닥",
+    "benchmarkLoading": "지수 데이터 조회 중...",
+    "benchmarkError": "지수 데이터를 불러오지 못했습니다.",
+    "myPortfolio": "내 포트폴리오",
+    "indexedNote": "통화·규모가 달라 금액 대신 비교 시작월을 100으로 놓고 지수화한 수익률로 비교합니다."
   },
   "risk": {
     "structuralTitle": "구조적 리스크",
@@ -271,5 +290,22 @@
     "taxSavingsVsGeneral": "일반계좌 대비 절세액",
     "sourceNts": "출처: 국세청 「연금계좌 세액공제」, 소득세법 제59조의3",
     "sourceIsa": "출처: 조세특례제한법 제91조의18(ISA 과세특례)"
+  },
+  "accounts": {
+    "title": "계좌 관리",
+    "description": "계좌(연금저축·IRP·ISA·일반계좌)마다 목표 자산배분과 보유종목을 완전히 분리해서 관리합니다. 계좌를 지우면 그 계좌의 자산배분·보유종목도 함께 지워집니다.",
+    "switcherLabel": "계좌 선택",
+    "currentAccountLabel": "현재 계좌",
+    "current": "현재 보는 중",
+    "switchTo": "전환",
+    "addTitle": "계좌 추가",
+    "namePlaceholder": "예: 연금저축(미래에셋)",
+    "addButton": "계좌 추가",
+    "deleteWarning": "\"{name}\" 계좌와 그 안의 자산배분·보유종목이 모두 삭제됩니다. 계속할까요?",
+    "lastAccountHint": "최소 1개의 계좌는 남아있어야 합니다.",
+    "type_general": "일반계좌",
+    "type_pensionSavings": "연금저축",
+    "type_irp": "IRP(개인형퇴직연금)",
+    "type_isa": "ISA"
   }
 }

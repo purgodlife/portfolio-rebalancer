@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useCategories, useHoldings, upsertSnapshot } from '@/lib/storage/hooks';
+import { useSelectedAccountId } from '@/lib/storage/accountContext';
 import { useUsdKrwRate, FALLBACK_USD_KRW_RATE } from '@/lib/market/fxRate';
 import { computeSnapshot } from '@/lib/rebalance/snapshot';
 
@@ -14,14 +15,15 @@ export default function PortfolioSnapshotter() {
   const categories = useCategories();
   const holdings = useHoldings();
   const fx = useUsdKrwRate();
+  const accountId = useSelectedAccountId();
 
   useEffect(() => {
     if (categories.length === 0 || holdings.length === 0) return;
     const rate = fx.rate ?? FALLBACK_USD_KRW_RATE;
     const today = new Date().toISOString().slice(0, 10);
-    const snapshot = computeSnapshot(categories, holdings, rate, today);
+    const snapshot = computeSnapshot(categories, holdings, rate, today, accountId);
     upsertSnapshot(snapshot);
-  }, [categories, holdings, fx.rate]);
+  }, [categories, holdings, fx.rate, accountId]);
 
   return null;
 }

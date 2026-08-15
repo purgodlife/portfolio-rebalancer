@@ -13,6 +13,7 @@ import { fetchFundamentals, type Fundamentals } from '@/lib/market/fundamentals'
 import { primaryLabel, secondaryLabel } from '@/lib/format/holdingLabel';
 import TickerLogo from './TickerLogo';
 import InfoTooltip from './InfoTooltip';
+import CurrentAccountBadge from './CurrentAccountBadge';
 import type { Holding } from '@/lib/rebalance/types';
 
 const GRAHAM_COLUMNS: GrahamCheckKey[] = [
@@ -76,6 +77,7 @@ export default function RiskDashboard() {
 
   return (
     <div className="space-y-5">
+      <CurrentAccountBadge />
       <div className="card">
         <h2 className="text-lg font-semibold mb-1">{t('structuralTitle')}</h2>
         <p className="text-sm text-gray-500 mb-4">{t('structuralDescription')}</p>

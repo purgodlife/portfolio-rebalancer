@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import LanguageSwitcher from './LanguageSwitcher';
 import MarketTicker from './MarketTicker';
+import AccountSwitcher from './AccountSwitcher';
 
 export default function NavBar() {
   const t = useTranslations('nav');
@@ -11,6 +12,7 @@ export default function NavBar() {
 
   const items: { href: string; label: string }[] = [
     { href: '/', label: t('dashboard') },
+    { href: '/accounts', label: t('accounts') },
     { href: '/allocation', label: t('allocation') },
     { href: '/holdings', label: t('holdings') },
     { href: '/watchlist', label: t('watchlist') },
@@ -46,7 +48,10 @@ export default function NavBar() {
             ))}
           </nav>
         </div>
-        <LanguageSwitcher />
+        <div className="flex items-center gap-2 shrink-0">
+          <AccountSwitcher />
+          <LanguageSwitcher />
+        </div>
       </div>
     </header>
   );

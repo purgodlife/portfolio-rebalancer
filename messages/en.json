@@ -24,7 +24,8 @@
     "history": "History",
     "trend": "Trend",
     "risk": "Risk",
-    "taxBenefits": "Tax Benefits"
+    "taxBenefits": "Tax Benefits",
+    "accounts": "Accounts"
   },
   "disclaimer": {
     "title": "Please review before using this app",
@@ -111,7 +112,16 @@
     "colQuantity": "Quantity",
     "sellQuantityNote": "Sell quantities are whole shares chosen to get as close as possible to the target amount (may not match exactly).",
     "approxSharesPrefix": "≈",
-    "sharesUnit": "sh"
+    "sharesUnit": "sh",
+    "feeRatePercent": "Trading fee rate (%, one-way)",
+    "applyCosts": "Include fees / taxes",
+    "applyCostsInfo": "On sells, KR stocks show the securities transaction tax (0.20%); US stocks show a reference capital-gains-tax estimate (22% of this sale's realized gain). Trading fees vary by broker, so your entered rate is used as-is.",
+    "sourceTax": "Source: Securities Transaction Tax Act Art. 8; Income Tax Act Art. 118-2 (foreign asset capital gains)",
+    "colFee": "Fee",
+    "colTax": "Tax",
+    "colNetAmount": "Net / total cost",
+    "costNote": "The US capital gains estimate is based on this single sale only. Your actual annual filing (due the following May) combines all sales and the 2,500,000 KRW annual deduction, so the real amount may differ.",
+    "usCapitalGainsNote": "This includes a US stock sale. The capital gains estimate is reference only, not tax advice."
   },
   "settings": {
     "title": "Settings & Backup",
@@ -139,7 +149,16 @@
     "empty": "No snapshots yet. Once you enter holdings and come back over the following days/months, a trend will appear here.",
     "onlyOneNote": "Only one month of data so far — this is just the current value, not yet a trend. It will fill in over time.",
     "month": "Month",
-    "totalValue": "Total value"
+    "totalValue": "Total value",
+    "benchmarkLabel": "Compare with benchmark",
+    "benchmarkNone": "None",
+    "benchmark_kospi": "KOSPI",
+    "benchmark_sp500": "S&P 500",
+    "benchmark_nasdaq": "Nasdaq",
+    "benchmarkLoading": "Loading index data...",
+    "benchmarkError": "Could not load index data.",
+    "myPortfolio": "My portfolio",
+    "indexedNote": "Since currency and scale differ, both series are indexed to 100 at the first comparable month and shown as relative returns."
   },
   "risk": {
     "structuralTitle": "Structural Risk",
@@ -271,5 +290,22 @@
     "taxSavingsVsGeneral": "Savings vs. regular account",
     "sourceNts": "Source: National Tax Service, \"Pension Account Tax Credit\"; Income Tax Act Art. 59-3",
     "sourceIsa": "Source: Restriction of Special Taxation Act Art. 91-18 (ISA tax treatment)"
+  },
+  "accounts": {
+    "title": "Accounts",
+    "description": "Keep target allocation and holdings fully separate per account (pension savings, IRP, ISA, general). Deleting an account also deletes its allocation and holdings.",
+    "switcherLabel": "Select account",
+    "currentAccountLabel": "Account",
+    "current": "Viewing",
+    "switchTo": "Switch",
+    "addTitle": "Add account",
+    "namePlaceholder": "e.g. Pension Savings (Broker X)",
+    "addButton": "Add account",
+    "deleteWarning": "This will delete \"{name}\" and all of its allocation and holdings. Continue?",
+    "lastAccountHint": "At least one account must remain.",
+    "type_general": "General",
+    "type_pensionSavings": "Pension Savings",
+    "type_irp": "IRP",
+    "type_isa": "ISA"
   }
 }

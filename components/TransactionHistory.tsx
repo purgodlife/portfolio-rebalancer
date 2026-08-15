@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useCategories, useHoldings, removeHolding } from '@/lib/storage/hooks';
 import { lotCreatedAt } from '@/lib/rebalance/lotTime';
+import CurrentAccountBadge from './CurrentAccountBadge';
 
 export default function TransactionHistory() {
   const t = useTranslations('history');
@@ -19,6 +20,7 @@ export default function TransactionHistory() {
 
   return (
     <div className="card">
+      <CurrentAccountBadge />
       <h2 className="text-lg font-semibold mb-1">{t('title')}</h2>
       <p className="text-sm text-gray-500 mb-4">{t('description')}</p>
 

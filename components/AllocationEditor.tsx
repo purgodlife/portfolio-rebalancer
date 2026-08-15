@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useCategories, addCategory, updateCategory, removeCategory } from '@/lib/storage/hooks';
+import { useSelectedAccountId } from '@/lib/storage/accountContext';
+import CurrentAccountBadge from './CurrentAccountBadge';
 import type { Category } from '@/lib/rebalance/types';
 
 const TOLERANCE = 0.05;
@@ -11,6 +13,7 @@ export default function AllocationEditor() {
   const t = useTranslations('allocation');
   const tc = useTranslations('common');
   const categories = useCategories();
+  const accountId = useSelectedAccountId();
   const [newName, setNewName] = useState('');
   const [newPercent, setNewPercent] = useState('');
 
@@ -51,13 +54,15 @@ export default function AllocationEditor() {
   async function handleAdd() {
     const percent = parseFloat(newPercent);
     if (!newName.trim() || Number.isNaN(percent)) return;
-    await addCategory(newName.trim(), percent);
+    await addCategory(newName.trim(), percent, accountId);
     setNewName('');
     setNewPercent('');
   }
 
   return (
-    <div className="card">
+    <div>
+      <CurrentAccountBadge />
+      <div className="card">
       <h2 className="text-lg font-semibold mb-1">{t('title')}</h2>
       <p className="text-sm text-gray-500 mb-4">{t('description')}</p>
 
@@ -128,6 +133,7 @@ export default function AllocationEditor() {
           <div className="mt-1 text-xs font-normal">{t('totalWarning')}</div>
         )}
       </div>
+    </div>
     </div>
   );
 }

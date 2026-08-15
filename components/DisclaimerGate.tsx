@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import { useAppSettings, setDisclaimerAgreed, seedDefaultCategoriesIfEmpty } from '@/lib/storage/hooks';
+import { useAppSettings, setDisclaimerAgreed, seedDefaultAccountIfEmpty, seedDefaultCategoriesIfEmpty } from '@/lib/storage/hooks';
 import PortfolioSnapshotter from './PortfolioSnapshotter';
 
 export default function DisclaimerGate({ children }: { children: ReactNode }) {
@@ -13,7 +13,10 @@ export default function DisclaimerGate({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
-    seedDefaultCategoriesIfEmpty();
+    (async () => {
+      await seedDefaultAccountIfEmpty();
+      await seedDefaultCategoriesIfEmpty();
+    })();
   }, []);
 
   // 아직 마운트 전이거나 IndexedDB 조회가 끝나지 않았으면(첫 렌더) 깜빡임 방지를 위해 대기

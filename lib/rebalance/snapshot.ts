@@ -6,11 +6,17 @@ import type { Category, Holding } from './types';
  * 월별 자산추이 화면에서 이 기록들을 월 단위로 묶어서 보여준다.
  */
 export interface PortfolioSnapshot {
+  /** `${accountId}:${date}` 형태의 복합 id (계좌별로 하루 1건). */
   id: string;
   date: string;
   totalValueBase: number;
   byCategory: Record<string, number>;
   usdKrwRate: number;
+  /**
+   * 이 스냅샷이 속한 계좌 id. 계좌 기능이 추가되기 전 데이터는 이 값이 없으므로
+   * (undefined), 그런 경우 기본 계좌에 속한 것으로 취급한다.
+   */
+  accountId?: string;
 }
 
 /**
@@ -21,7 +27,8 @@ export function computeSnapshot(
   categories: Category[],
   holdings: Holding[],
   usdKrwRate: number,
-  dateStr: string
+  dateStr: string,
+  accountId: string
 ): PortfolioSnapshot {
   const grouped = groupHoldings(holdings).map(groupToHolding);
   const byCategory: Record<string, number> = {};
@@ -38,7 +45,7 @@ export function computeSnapshot(
     if (!(c.id in byCategory)) byCategory[c.id] = 0;
   }
 
-  return { id: dateStr, date: dateStr, totalValueBase, byCategory, usdKrwRate };
+  return { id: `${accountId}:${dateStr}`, date: dateStr, totalValueBase, byCategory, usdKrwRate, accountId };
 }
 
 export interface MonthlyPoint {

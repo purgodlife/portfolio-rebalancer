@@ -2,11 +2,35 @@ export type Market = 'KR' | 'US';
 export type Currency = 'KRW' | 'USD';
 export type LotType = 'buy' | 'sell';
 
+/**
+ * 계좌 유형. 일반계좌는 세제 혜택이 없고, 연금저축/IRP/ISA는 각각 다른 세제
+ * 혜택·한도가 적용된다(세제혜택 계산기 화면 참고). 계좌 유형은 표시·분류
+ * 용도로만 쓰이고, 리밸런싱 계산 로직 자체는 계좌 유형을 구분하지 않는다.
+ */
+export type AccountType = 'general' | 'pensionSavings' | 'irp' | 'isa';
+
+/**
+ * 계좌(포트폴리오) 단위. 카테고리(목표 자산배분)는 계좌에 속하고, 보유종목은
+ * 카테고리에 속하므로 결과적으로 계좌별로 완전히 분리된 리밸런싱이 가능하다.
+ * 연금저축·IRP·ISA·일반계좌처럼 계좌별로 다른 목표 배분을 쓰고 싶은 경우를
+ * 위한 것이다.
+ */
+export interface Account {
+  id: string;
+  name: string;
+  type: AccountType;
+}
+
 export interface Category {
   id: string;
   name: string;
   /** 0-100 */
   targetPercent: number;
+  /**
+   * 이 카테고리가 속한 계좌 id. 계좌 기능이 추가되기 전 데이터는 이 값이
+   * 없으므로(undefined), 그런 경우 기본 계좌에 속한 것으로 취급한다.
+   */
+  accountId?: string;
 }
 
 export interface Holding {

@@ -1,7 +1,7 @@
 'use client';
 
 import Dexie, { type Table } from 'dexie';
-import type { Category, Holding } from '@/lib/rebalance/types';
+import type { Account, Category, Holding } from '@/lib/rebalance/types';
 import type { PortfolioSnapshot } from '@/lib/rebalance/snapshot';
 
 export type { PortfolioSnapshot } from '@/lib/rebalance/snapshot';
@@ -31,6 +31,7 @@ export class PortfolioDatabase extends Dexie {
   watchlist!: Table<WatchlistItem, string>;
   settings!: Table<AppSettings, string>;
   snapshots!: Table<PortfolioSnapshot, string>;
+  accounts!: Table<Account, string>;
 
   constructor() {
     super('portfolio-rebalancer-db');
@@ -46,6 +47,17 @@ export class PortfolioDatabase extends Dexie {
       watchlist: 'id',
       settings: 'id',
       snapshots: 'id, date',
+    });
+    // v3: 계좌(포트폴리오) 분리 기능. accountId가 없는 기존 categories/snapshots
+    // 레코드는 앱 코드에서 "기본 계좌" 소속으로 취급하므로 별도 데이터 마이그레이션은
+    // 필요하지 않다.
+    this.version(3).stores({
+      categories: 'id',
+      holdings: 'id, categoryId',
+      watchlist: 'id',
+      settings: 'id',
+      snapshots: 'id, date',
+      accounts: 'id',
     });
   }
 }

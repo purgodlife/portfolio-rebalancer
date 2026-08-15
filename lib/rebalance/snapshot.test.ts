@@ -18,13 +18,15 @@ describe('computeSnapshot', () => {
       [...categories, { id: 'empty', name: '빈카테고리', targetPercent: 0 }],
       holdings,
       1300,
-      '2026-08-13'
+      '2026-08-13',
+      'acc-1'
     );
     expect(snap.byCategory.bond).toBeCloseTo(95 * 10 * 1300, 5);
     expect(snap.byCategory.stock).toBe(75000 * 10);
     expect(snap.byCategory.empty).toBe(0);
     expect(snap.totalValueBase).toBeCloseTo(95 * 10 * 1300 + 75000 * 10, 5);
-    expect(snap.id).toBe('2026-08-13');
+    expect(snap.id).toBe('acc-1:2026-08-13');
+    expect(snap.accountId).toBe('acc-1');
   });
 
   it('merges lots of the same ticker before valuing (uses net quantity)', () => {
@@ -32,7 +34,7 @@ describe('computeSnapshot', () => {
       ...holdings,
       { id: 'hold-3-c', ticker: '005930', name: '삼성전자', categoryId: 'stock', market: 'KR', currency: 'KRW', avgPrice: 75000, quantity: 4, currentPrice: 75000, lotType: 'sell' },
     ];
-    const snap = computeSnapshot(categories, withExtraLot, 1300, '2026-08-13');
+    const snap = computeSnapshot(categories, withExtraLot, 1300, '2026-08-13', 'acc-1');
     // 10주 매수 - 4주 매도 = 6주 순보유
     expect(snap.byCategory.stock).toBe(75000 * 6);
   });

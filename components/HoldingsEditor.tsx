@@ -8,6 +8,7 @@ import { fetchCurrentPrice } from '@/lib/market/quote';
 import { useUsdKrwRate, FALLBACK_USD_KRW_RATE } from '@/lib/market/fxRate';
 import { groupHoldings, type HoldingGroup } from '@/lib/rebalance/grouping';
 import TickerLogo from './TickerLogo';
+import CurrentAccountBadge from './CurrentAccountBadge';
 import type { StockEntry } from '@/lib/search/stockData';
 import type { Currency, LotType, Market } from '@/lib/rebalance/types';
 
@@ -167,6 +168,7 @@ export default function HoldingsEditor() {
 
   return (
     <div className="card">
+      <CurrentAccountBadge />
       <div className="flex items-center justify-between mb-1">
         <h2 className="text-lg font-semibold">{t('title')}</h2>
         <span className="text-xs text-gray-500">
