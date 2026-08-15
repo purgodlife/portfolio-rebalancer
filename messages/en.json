@@ -53,8 +53,10 @@
     "copyFromPlaceholder": "Select account",
     "copyButton": "Copy",
     "copying": "Copying...",
-    "copyHint": "Categories with the same name will have their target percent overwritten; categories not present here will be added. Categories that only exist in this account are left untouched (nothing is deleted, so existing holdings stay safe).",
-    "copyConfirm": "Copy categories from \"{source}\"? Categories with the same name will have their target percent overwritten."
+    "copyHint": "Copying replaces all of this account's existing categories with the selected account's categories. Holdings in a category with a matching name are automatically moved to the new category and kept, but holdings in a category with no matching name in the source account are deleted along with it.",
+    "copyConfirm": "Replace this account's categories with those from \"{source}\"? All existing categories here will be deleted.",
+    "copyConfirmWithLoss": "Replace this account's categories with those from \"{source}\"? All existing categories here will be deleted, and {count} holding(s) with nowhere to move to will be deleted along with them. This cannot be undone.",
+    "copyLossWarning": "⚠ {count} holding(s) in this account have no matching category and will be deleted."
   },
   "holdings": {
     "title": "Holdings",

@@ -4,13 +4,15 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import {
   useCategories,
+  useAllCategories,
+  useHoldings,
   useAccounts,
   addCategory,
   updateCategory,
   removeCategory,
-  copyCategoriesFromAccount,
+  replaceCategoriesFromAccount,
 } from '@/lib/storage/hooks';
-import { useSelectedAccountId } from '@/lib/storage/accountContext';
+import { useSelectedAccountId, DEFAULT_ACCOUNT_ID } from '@/lib/storage/accountContext';
 import CurrentAccountBadge from './CurrentAccountBadge';
 import type { Category } from '@/lib/rebalance/types';
 
@@ -20,6 +22,8 @@ export default function AllocationEditor() {
   const t = useTranslations('allocation');
   const tc = useTranslations('common');
   const categories = useCategories();
+  const holdings = useHoldings();
+  const allCategories = useAllCategories();
   const accountId = useSelectedAccountId();
   const accounts = useAccounts();
   const otherAccounts = accounts.filter((a) => a.id !== accountId);
@@ -27,6 +31,21 @@ export default function AllocationEditor() {
   const [newPercent, setNewPercent] = useState('');
   const [copySourceId, setCopySourceId] = useState('');
   const [copying, setCopying] = useState(false);
+
+  // 복사를 실행하면 이 계좌의 기존 카테고리는 모두 지워지고 소스 계좌의
+  // 카테고리로 교체된다. 이름이 같은 카테고리는 보유종목이 새 카테고리로
+  // 옮겨져 살아남지만, 소스 계좌에 없는 이름의 카테고리에 속한 보유종목은
+  // 카테고리와 함께 삭제된다 — 실행 전에 몇 개가 위험한지 미리 계산해서
+  // 확인창에 보여준다.
+  const sourceCategoryNames = new Set(
+    allCategories
+      .filter((c) => (c.accountId ?? DEFAULT_ACCOUNT_ID) === copySourceId)
+      .map((c) => c.name.trim())
+  );
+  const atRiskCategoryIds = new Set(
+    categories.filter((c) => !sourceCategoryNames.has(c.name.trim())).map((c) => c.id)
+  );
+  const holdingsAtRiskCount = holdings.filter((h) => atRiskCategoryIds.has(h.categoryId)).length;
 
   // 입력 중에는 로컬 상태만 바꾸고, blur 시점에만 저장한다.
   // (매 keystroke마다 IndexedDB에 쓰고 live query로 되돌아오는 구조면
@@ -73,10 +92,14 @@ export default function AllocationEditor() {
   async function handleCopy() {
     if (!copySourceId) return;
     const sourceName = accounts.find((a) => a.id === copySourceId)?.name ?? '';
-    if (!window.confirm(t('copyConfirm', { source: sourceName }))) return;
+    const confirmMessage =
+      holdingsAtRiskCount > 0
+        ? t('copyConfirmWithLoss', { source: sourceName, count: holdingsAtRiskCount })
+        : t('copyConfirm', { source: sourceName });
+    if (!window.confirm(confirmMessage)) return;
     setCopying(true);
     try {
-      await copyCategoriesFromAccount(copySourceId, accountId);
+      await replaceCategoriesFromAccount(copySourceId, accountId);
     } finally {
       setCopying(false);
     }
@@ -113,6 +136,11 @@ export default function AllocationEditor() {
             {copying ? t('copying') : t('copyButton')}
           </button>
           <p className="w-full text-xs text-gray-400">{t('copyHint')}</p>
+          {copySourceId && holdingsAtRiskCount > 0 && (
+            <p className="w-full text-xs font-medium text-red-600">
+              {t('copyLossWarning', { count: holdingsAtRiskCount })}
+            </p>
+          )}
         </div>
       )}
 

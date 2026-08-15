@@ -71,7 +71,9 @@ export default function HoldingsEditor() {
       ...f,
       market,
       currency: market === 'KR' ? 'KRW' : 'USD',
-      purchaseFxRate: market === 'US' ? (fx.rate ? String(fx.rate) : f.purchaseFxRate) : '',
+      // 매입 시 환율은 "매입 시점"의 환율이라 현재 환율과 다를 수 있으므로
+      // 자동으로 채우지 않고, 다른 입력칸처럼 회색 placeholder로만 안내한다.
+      purchaseFxRate: '',
     }));
   }
 
@@ -86,10 +88,9 @@ export default function HoldingsEditor() {
   function openLotForm(group: HoldingGroup, type: LotType) {
     setExpanded((e) => ({ ...e, [group.key]: true }));
     setLotFormError(null);
-    setLotFormValues({
-      ...EMPTY_LOT_FORM,
-      purchaseFxRate: group.currency === 'USD' ? String(fx.rate ?? group.avgPurchaseFxRate ?? FALLBACK_USD_KRW_RATE) : '',
-    });
+    // 매입 시 환율은 자동으로 채우지 않고 다른 입력칸처럼 회색 placeholder로만 안내한다
+    // (매입 시점 환율은 현재 환율과 다를 수 있어서, 값을 미리 채워두면 그대로 잘못 저장되기 쉽다).
+    setLotFormValues(EMPTY_LOT_FORM);
     setLotForm({ groupKey: group.key, type });
   }
 

@@ -88,29 +88,46 @@ export async function removeCategory(id: string): Promise<void> {
 }
 
 /**
- * 다른 계좌의 카테고리(이름+목표비중)를 이 계좌로 복사한다. 자산배분을
- * 처음 설정할 때 이미 만들어둔 다른 계좌의 배분을 그대로 가져와 시작할 수
- * 있게 해준다. 이름이 같은 카테고리가 이미 있으면 목표비중만 덮어쓰고,
- * 없으면 새로 만든다. 기존 카테고리를 지우지 않으므로(따라서 보유종목이
- * 연쇄 삭제될 일도 없으므로) 이미 보유종목이 들어있는 계좌에도 안전하게
- * 쓸 수 있다. 대상 계좌에만 있는 카테고리는 그대로 유지된다.
+ * 다른 계좌의 카테고리(이름+목표비중)를 이 계좌로 복사하면서, 이 계좌에
+ * 기존에 있던 카테고리는 모두 지운다(교체). 자산배분을 다른 계좌 기준으로
+ * 새로 맞출 때 쓴다.
+ *
+ * 보유종목 보호: 기존 카테고리를 무작정 지우면 거기 속한 보유종목도 함께
+ * 지워지므로(카테고리 삭제는 항상 연쇄삭제), 기존 카테고리와 "이름이 같은"
+ * 카테고리가 복사해오는 목록에도 있으면 그 보유종목을 새 카테고리로 옮겨서
+ * 살린다. 이름이 다른(=복사해오는 계좌에는 없는) 카테고리에 속한 보유종목은
+ * 카테고리와 함께 삭제된다 — 호출하는 쪽(UI)에서 실행 전에 몇 개나 지워지는지
+ * 미리 계산해서 사용자에게 확인받아야 한다.
  */
-export async function copyCategoriesFromAccount(sourceAccountId: string, targetAccountId: string): Promise<void> {
+export async function replaceCategoriesFromAccount(sourceAccountId: string, targetAccountId: string): Promise<void> {
   const db = getDb();
-  await db.transaction('rw', db.categories, async () => {
-    const all = await db.categories.toArray();
-    const sourceCategories = all.filter((c) => resolveAccountId(c.accountId) === sourceAccountId);
-    const targetCategories = all.filter((c) => resolveAccountId(c.accountId) === targetAccountId);
-    const targetByName = new Map(targetCategories.map((c) => [c.name.trim(), c]));
+  await db.transaction('rw', db.categories, db.holdings, async () => {
+    const allCategories = await db.categories.toArray();
+    const sourceCategories = allCategories.filter((c) => resolveAccountId(c.accountId) === sourceAccountId);
+    const targetCategories = allCategories.filter((c) => resolveAccountId(c.accountId) === targetAccountId);
 
+    // 1) 소스 카테고리를 새 id로 이 계좌에 추가한다.
+    const nameToNewId = new Map<string, string>();
     for (const sc of sourceCategories) {
+      const newId = uid('cat');
       const name = sc.name.trim();
-      const existing = targetByName.get(name);
-      if (existing) {
-        await db.categories.put({ ...existing, targetPercent: sc.targetPercent });
+      nameToNewId.set(name, newId);
+      await db.categories.add({ id: newId, name, targetPercent: sc.targetPercent, accountId: targetAccountId });
+    }
+
+    // 2) 기존 카테고리를 지우되, 이름이 같은 새 카테고리가 있으면 그 보유종목을
+    //    옮겨서 살리고, 없으면 보유종목도 함께 지운다.
+    for (const oc of targetCategories) {
+      const newId = nameToNewId.get(oc.name.trim());
+      const holdingsInCategory = await db.holdings.where('categoryId').equals(oc.id).toArray();
+      if (newId) {
+        for (const h of holdingsInCategory) {
+          await db.holdings.put({ ...h, categoryId: newId });
+        }
       } else {
-        await db.categories.add({ id: uid('cat'), name, targetPercent: sc.targetPercent, accountId: targetAccountId });
+        await db.holdings.where('categoryId').equals(oc.id).delete();
       }
+      await db.categories.delete(oc.id);
     }
   });
 }
