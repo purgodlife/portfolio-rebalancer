@@ -144,7 +144,17 @@
     "unifiedHint": "Combines holdings across all accounts, merging categories with the same name into one. Using consistent category names across accounts gives a more accurate result.",
     "unifiedWarningTitle": "Categories with the same name have different targets across accounts — using the average",
     "unifiedWarningItem": "\"{name}\": {details} → averaged to {avg}%",
-    "unifiedMultiAccountNote": "Split across accounts: {accounts} — execute the actual trade in whichever account you choose."
+    "unifiedMultiAccountNote": "Split across accounts: {accounts} — execute the actual trade in whichever account you choose.",
+    "taxResidencyLabel": "Tax residency",
+    "taxResidencyKr": "Korea",
+    "taxResidencyUs": "United States",
+    "taxResidencyHint": "Korea's securities transaction tax on KR-listed stock sales always applies regardless of your tax residency. Only capital gains tax rules depend on residency — KR residents are taxed 22% on foreign (US) stock gains only, while US residents/citizens must report worldwide gains (including KR-listed stock gains) to the IRS under the US worldwide-income taxation principle, since Korea's domestic-stock tax exemption for its own residents has no bearing on US filing obligations.",
+    "usLongTermRateLabel": "Long-term rate (>1yr, auto)",
+    "usShortTermRateLabel": "Short-term rate (<1yr, %)",
+    "usSubjectToNiitLabel": "Subject to Net Investment Income Tax (NIIT 3.8%)",
+    "usTaxSettingsNote": "The long-term rate is estimated automatically from your filing status and taxable income (same logic as the US tab in the Tax Benefit Calculator). This calculator doesn't model the full US federal ordinary-income brackets, so enter your own marginal rate for the short-term rate. Holding period (long/short-term) is approximated from the quantity-weighted average purchase date of your buy lots.",
+    "costNoteUs": "This US-residency capital gains estimate is based on this single sale only. Your actual tax liability depends on your other gains/losses for the year and your overall income. Yearly cumulative realized gains (split by long/short-term) are available on the Transaction History page.",
+    "usResidencyNote": "Calculating under US tax residency. For KR-listed stock sales, an estimated US federal capital gains tax is shown alongside the KR securities transaction tax. This is not tax advice."
   },
   "settings": {
     "title": "Settings & Backup",
@@ -176,7 +186,22 @@
     "usGainsTaxable": "Above deduction",
     "usGainsEstimatedTax": "Estimated tax (22%)",
     "usGainsDeductionNote": "The first 2,500,000 KRW ({deduction} KRW) per year is tax-free. The KRW conversion uses today's rate, not the actual sale-date rate, so it may differ from the real filing amount.",
-    "usGainsApproximatedNote": "* Entries without a recorded buy or sell FX rate were calculated using today's rate instead (may not be exact)."
+    "usGainsApproximatedNote": "* Entries without a recorded buy or sell FX rate were calculated using today's rate instead (may not be exact).",
+    "taxResidencyLabel": "Tax residency",
+    "taxResidencyKr": "Korea",
+    "taxResidencyUs": "United States",
+    "taxResidencyHint": "Korea's securities transaction tax on KR-listed stock sales always applies regardless of your tax residency. Only capital gains tax rules depend on residency — KR residents are taxed 22% on foreign (US) stock gains only, while US residents/citizens must report worldwide gains (including KR-listed stock gains) to the IRS under the US worldwide-income taxation principle.",
+    "usResidentGainsTitle": "Yearly Realized Gains (US Tax Basis)",
+    "usResidentGainsInfo": "Since the US taxes residents and citizens on worldwide income, this includes sales of both KR- and US-listed stocks. Long-term (held over 1 year) and short-term (1 year or less) gains are shown separately since they're taxed at different rates. Holding period is approximated from the number of days between the quantity-weighted average purchase date of the buy lots and the sale date (this app doesn't support selling specific lots).",
+    "usResidentGainsSource": "Source: IRS Topic no. 409, Capital gains and losses",
+    "usResidentGainsDescription": "Combines KR- and US-listed stock sales into yearly, long/short-term realized gain totals. The number in parentheses is the sell count.",
+    "usShortTermRateLabel": "Short-term rate (<1yr, %)",
+    "usSubjectToNiitLabel": "Subject to Net Investment Income Tax (NIIT 3.8%)",
+    "usResidentLongTermLabel": "Long-term (>1yr) gain",
+    "usResidentShortTermLabel": "Short-term (<1yr) gain",
+    "usResidentEstimatedTaxLabel": "Estimated tax (reference)",
+    "usResidentApproximatedNote": "KR-listed (KRW) stock gains are converted to USD using the current exchange rate as an approximation (USD-listed stocks need no conversion).",
+    "usResidentRateNote": "The long-term rate is auto-estimated ({rate}%) from your filing status and taxable income, adjustable on the US tab of the Tax Benefit Calculator. The short-term rate is what you entered. Actual tax may differ based on other gains/losses, state tax, and more — this is not tax advice."
   },
   "trend": {
     "title": "Monthly Asset Trend",

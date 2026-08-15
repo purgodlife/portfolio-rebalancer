@@ -8,7 +8,10 @@ import { groupHoldings } from '@/lib/rebalance/grouping';
 import { mergeAccountsForUnifiedRebalance } from '@/lib/rebalance/unifiedRebalance';
 import { useUsdKrwRate, FALLBACK_USD_KRW_RATE } from '@/lib/market/fxRate';
 import { primaryLabel, secondaryLabel } from '@/lib/format/holdingLabel';
-import { calculateTradeCost } from '@/lib/tax/tradeCosts';
+import { calculateRebalanceActionCost } from '@/lib/tax/rebalanceActionCost';
+import { useTaxResidency, useUsTaxSettings } from '@/lib/tax/taxResidency';
+import { estimateLtcgBracket, type LtcgFilingStatus } from '@/lib/tax/usTaxBenefits';
+import { lotCreatedAt } from '@/lib/rebalance/lotTime';
 import type { Currency } from '@/lib/rebalance/types';
 import CurrentAccountBadge from './CurrentAccountBadge';
 import InfoTooltip from './InfoTooltip';
@@ -20,6 +23,7 @@ const UNIFIED_MODE_STORAGE_KEY = 'portfolio-rebalancer:unifiedRebalance';
 export default function RebalanceCalculator() {
   const t = useTranslations('calculator');
   const ta = useTranslations('allocation');
+  const tUs = useTranslations('usTaxBenefits');
   const categories = useCategories();
   const holdings = useHoldings();
   const accounts = useAccounts();
@@ -47,6 +51,12 @@ export default function RebalanceCalculator() {
   const [depositCurrency, setDepositCurrency] = useState<Currency>('KRW');
   const [allowSell, setAllowSell] = useState(false);
   const [applyCosts, setApplyCosts] = useState(false);
+  const [taxResidency, setTaxResidency] = useTaxResidency();
+  const [usTaxSettings, updateUsTaxSettings] = useUsTaxSettings();
+  const usLtcg = useMemo(
+    () => estimateLtcgBracket(usTaxSettings.filingStatus, parseFloat(usTaxSettings.taxableIncome) || 0),
+    [usTaxSettings.filingStatus, usTaxSettings.taxableIncome]
+  );
   const fx = useUsdKrwRate();
   const [usdKrwRate, setUsdKrwRate] = useState(String(FALLBACK_USD_KRW_RATE));
   const [rateTouchedByUser, setRateTouchedByUser] = useState(false);
@@ -78,9 +88,18 @@ export default function RebalanceCalculator() {
   // 매도 시 실현손익(해외주식 양도세 추정용)을 구하려면 평단가가 필요한데,
   // RebalanceResult.actions에는 없으므로 원본 보유종목을 다시 그룹핑해서 조회한다.
   const groupByKey = useMemo(() => {
-    const map = new Map<string, { avgBuyPrice: number; currentPrice: number }>();
+    const map = new Map<
+      string,
+      { avgBuyPrice: number; currentPrice: number; buyLots: { quantity: number; createdAtMs: number }[] }
+    >();
     for (const g of groupHoldings(activeHoldings)) {
-      map.set(g.key, { avgBuyPrice: g.avgBuyPrice, currentPrice: g.currentPrice });
+      map.set(g.key, {
+        avgBuyPrice: g.avgBuyPrice,
+        currentPrice: g.currentPrice,
+        buyLots: g.lots
+          .filter((l) => (l.lotType ?? 'buy') === 'buy')
+          .map((l) => ({ quantity: l.quantity, createdAtMs: lotCreatedAt(l) })),
+      });
     }
     return map;
   }, [activeHoldings]);
@@ -192,6 +211,89 @@ export default function RebalanceCalculator() {
             {t('applyCosts')}{' '}
             <InfoTooltip text={t('applyCostsInfo')} source={t('sourceTax')} />
           </label>
+
+          {applyCosts && (
+            <div className="mt-3 space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs text-gray-500">{t('taxResidencyLabel')}</span>
+                <div className="inline-flex rounded-lg border border-gray-200 bg-gray-50 p-1 text-xs">
+                  <button
+                    type="button"
+                    className={`rounded-md px-2.5 py-1 ${
+                      taxResidency === 'kr' ? 'bg-white font-medium text-gray-900 shadow-sm' : 'text-gray-500'
+                    }`}
+                    onClick={() => setTaxResidency('kr')}
+                  >
+                    {t('taxResidencyKr')}
+                  </button>
+                  <button
+                    type="button"
+                    className={`rounded-md px-2.5 py-1 ${
+                      taxResidency === 'us' ? 'bg-white font-medium text-gray-900 shadow-sm' : 'text-gray-500'
+                    }`}
+                    onClick={() => setTaxResidency('us')}
+                  >
+                    {t('taxResidencyUs')}
+                  </button>
+                </div>
+                <InfoTooltip text={t('taxResidencyHint')} />
+              </div>
+
+              {taxResidency === 'us' && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 items-end rounded-lg bg-gray-50 p-3">
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">{tUs('filingStatus')}</label>
+                    <select
+                      className="input"
+                      value={usTaxSettings.filingStatus}
+                      onChange={(e) =>
+                        updateUsTaxSettings({ filingStatus: e.target.value as LtcgFilingStatus })
+                      }
+                    >
+                      <option value="single">{tUs('filingStatusSingle')}</option>
+                      <option value="marriedFilingJointly">{tUs('filingStatusMfj')}</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">{tUs('taxableIncome')} (USD)</label>
+                    <input
+                      type="number"
+                      className="input"
+                      placeholder="0"
+                      value={usTaxSettings.taxableIncome}
+                      onChange={(e) => updateUsTaxSettings({ taxableIncome: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">{t('usLongTermRateLabel')}</label>
+                    <input
+                      className="input bg-gray-100 text-gray-500"
+                      value={`${(usLtcg.rate * 100).toFixed(0)}%`}
+                      readOnly
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-500 mb-1">{t('usShortTermRateLabel')}</label>
+                    <input
+                      type="number"
+                      className="input"
+                      value={usTaxSettings.shortTermRatePercent}
+                      onChange={(e) => updateUsTaxSettings({ shortTermRatePercent: e.target.value })}
+                    />
+                  </div>
+                  <label className="col-span-2 flex items-center gap-2 text-xs md:col-span-4">
+                    <input
+                      type="checkbox"
+                      checked={usTaxSettings.subjectToNiit}
+                      onChange={(e) => updateUsTaxSettings({ subjectToNiit: e.target.checked })}
+                    />
+                    {t('usSubjectToNiitLabel')}
+                  </label>
+                  <p className="col-span-2 text-[11px] text-gray-400 md:col-span-4">{t('usTaxSettingsNote')}</p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -273,14 +375,21 @@ export default function RebalanceCalculator() {
                           a.action === 'sell' && group
                             ? (group.currentPrice - group.avgBuyPrice) * a.approxShares
                             : undefined;
-                        cost = calculateTradeCost({
-                          market: a.market,
+                        cost = calculateRebalanceActionCost({
                           action: a.action,
+                          market: a.market,
+                          currency: a.currency,
                           amount: a.amountInHoldingCurrency,
                           realizedGain,
+                          taxResidency,
+                          usdKrwRate: parseFloat(usdKrwRate) || FALLBACK_USD_KRW_RATE,
+                          buyLots: group?.buyLots,
+                          usLongTermRate: usLtcg.rate,
+                          usShortTermRate: (parseFloat(usTaxSettings.shortTermRatePercent) || 0) / 100,
+                          usSubjectToNiit: usTaxSettings.subjectToNiit,
                         });
                       }
-                      const tax = cost ? cost.securitiesTransactionTax + cost.estimatedCapitalGainsTax : 0;
+                      const tax = cost ? cost.totalTax : 0;
                       return (
                         <tr key={a.holdingId}>
                           <td className="table-cell">
@@ -327,10 +436,15 @@ export default function RebalanceCalculator() {
               <p className="text-xs text-gray-400 mt-3">{t('sellQuantityNote')}</p>
             )}
             {applyCosts && (
-              <p className="text-xs text-gray-400 mt-1">{t('costNote')}</p>
+              <p className="text-xs text-gray-400 mt-1">
+                {taxResidency === 'kr' ? t('costNote') : t('costNoteUs')}
+              </p>
             )}
-            {applyCosts && hasUsSell && (
+            {applyCosts && taxResidency === 'kr' && hasUsSell && (
               <p className="text-xs text-amber-600 mt-1">{t('usCapitalGainsNote')}</p>
+            )}
+            {applyCosts && taxResidency === 'us' && (
+              <p className="text-xs text-amber-600 mt-1">{t('usResidencyNote')}</p>
             )}
           </div>
         </>
