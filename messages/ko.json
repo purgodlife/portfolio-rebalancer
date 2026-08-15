@@ -18,14 +18,17 @@
     "allocation": "자산배분 설정",
     "holdings": "보유종목",
     "watchlist": "관심종목",
-    "checklist": "그레이엄 체크리스트",
-    "settings": "설정/백업",
+    "settings": "설정",
     "disclaimer": "이용약관",
     "history": "거래내역",
     "trend": "자산추이",
     "risk": "리스크",
     "taxBenefits": "세제혜택 계산기",
-    "accounts": "계좌 관리"
+    "accounts": "계좌 관리",
+    "portfolio": "포트폴리오",
+    "records": "기록",
+    "analysis": "분석",
+    "settingsBackupTab": "백업/복원"
   },
   "disclaimer": {
     "title": "서비스 이용 전 꼭 확인해주세요",

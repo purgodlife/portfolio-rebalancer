@@ -18,14 +18,17 @@
     "allocation": "Target Allocation",
     "holdings": "Holdings",
     "watchlist": "Watchlist",
-    "checklist": "Graham Checklist",
-    "settings": "Settings / Backup",
+    "settings": "Settings",
     "disclaimer": "Terms",
     "history": "History",
     "trend": "Trend",
     "risk": "Risk",
     "taxBenefits": "Tax Benefits",
-    "accounts": "Accounts"
+    "accounts": "Accounts",
+    "portfolio": "Portfolio",
+    "records": "Records",
+    "analysis": "Analysis",
+    "settingsBackupTab": "Backup / Restore"
   },
   "disclaimer": {
     "title": "Please review before using this app",

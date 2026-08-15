@@ -1,17 +1,8 @@
-import { getTranslations } from 'next-intl/server';
+import { redirect } from '@/i18n/navigation';
 
-export default async function DisclaimerPage() {
-  const t = await getTranslations('disclaimer');
-  return (
-    <div className="card max-w-2xl mx-auto">
-      <h1 className="text-xl font-semibold mb-4">{t('title')}</h1>
-      <ul className="text-sm text-gray-700 space-y-3 list-disc list-inside">
-        <li>{t('point1')}</li>
-        <li>{t('point2')}</li>
-        <li>{t('point3')}</li>
-        <li>{t('point4')}</li>
-        <li>{t('point5')}</li>
-      </ul>
-    </div>
-  );
+// 이 경로는 네비게이션 재구성으로 '/settings/disclaimer'(으)로 이동했다. 옛 북마크·링크가
+// 계속 동작하도록 새 위치로 리다이렉트만 한다.
+export default async function LegacyRedirect({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  redirect({ href: '/settings/disclaimer', locale });
 }
