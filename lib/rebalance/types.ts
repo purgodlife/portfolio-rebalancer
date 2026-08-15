@@ -28,6 +28,21 @@ export interface Account {
   id: string;
   name: string;
   type: AccountType;
+  /**
+   * true면 이 계좌는 자기만의 자산배분(카테고리)을 직접 입력·관리한다("개별
+   * 모드"). false 또는 undefined(기본값)면 통합 자산배분(모든 계좌가 공유하는
+   * 하나의 목표표, lib/storage/hooks.ts의 UNIFIED_ALLOCATION_ACCOUNT_ID)을
+   * 그대로 따른다("통합 모드", 기본값). 통합 모드인 계좌의 실제 카테고리
+   * 행(row)은 통합 카테고리를 그대로 미러링한 것으로, Category.mirrorsCategoryId로
+   * 연결된다 — 이렇게 해야 보유종목이 참조하는 categoryId는 그대로 둔 채
+   * 이름·비중 변경만 모든 계좌에 전파할 수 있다.
+   *
+   * 이 필드가 없는(undefined) 기존 계좌는 이 기능이 추가되기 전부터 자기만의
+   * 카테고리를 이미 입력해둔 상태이므로, 앱 최초 실행 시 1회 마이그레이션으로
+   * true(개별 모드)를 명시적으로 저장해 기존 데이터가 갑자기 안 보이는 일이
+   * 없게 한다(lib/storage/hooks.ts의 migrateExistingAccountsToIndividualAllocation).
+   */
+  useIndividualAllocation?: boolean;
 }
 
 export interface Category {
@@ -38,8 +53,20 @@ export interface Category {
   /**
    * 이 카테고리가 속한 계좌 id. 계좌 기능이 추가되기 전 데이터는 이 값이
    * 없으므로(undefined), 그런 경우 기본 계좌에 속한 것으로 취급한다.
+   * 통합 자산배분 카테고리 자체는 accountId가 특수 상수
+   * UNIFIED_ALLOCATION_ACCOUNT_ID(lib/storage/hooks.ts)로 저장된다 — 어느
+   * 계좌에도 속하지 않는, 여러 계좌가 공유하는 "원본" 카테고리다.
    */
   accountId?: string;
+  /**
+   * 이 값이 있으면 이 카테고리는 통합 카테고리(id가 이 값)를 그대로 미러링한
+   * "계좌별 사본"이다 — name·targetPercent는 통합 카테고리와 자동으로
+   * 동기화되고(사용자가 직접 수정할 수 없음) 화면에는 읽기전용으로 표시한다.
+   * id 자체는 계좌마다 고유하게 유지되므로, 이 카테고리를 가리키는
+   * 보유종목(Holding.categoryId)은 통합 카테고리의 이름이 바뀌어도 계속 같은
+   * 카테고리를 가리킨다(=매수/매도 시 입력해둔 종목 연결이 끊기지 않는다).
+   */
+  mirrorsCategoryId?: string;
 }
 
 export interface Holding {

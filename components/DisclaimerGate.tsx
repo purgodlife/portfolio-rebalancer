@@ -2,7 +2,14 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
-import { useAppSettings, setDisclaimerAgreed, seedDefaultAccountIfEmpty, seedDefaultCategoriesIfEmpty } from '@/lib/storage/hooks';
+import {
+  useAppSettings,
+  setDisclaimerAgreed,
+  seedDefaultAccountIfEmpty,
+  seedDefaultCategoriesIfEmpty,
+  migrateExistingAccountsToIndividualAllocation,
+  syncAllUnifiedMirrors,
+} from '@/lib/storage/hooks';
 import PortfolioSnapshotter from './PortfolioSnapshotter';
 
 export default function DisclaimerGate({ children }: { children: ReactNode }) {
@@ -16,6 +23,11 @@ export default function DisclaimerGate({ children }: { children: ReactNode }) {
     (async () => {
       await seedDefaultAccountIfEmpty();
       await seedDefaultCategoriesIfEmpty();
+      // 이 기능이 추가되기 전부터 있던 계좌는 개별 모드로 고정해서 기존
+      // 자산배분이 갑자기 안 보이는 일이 없게 하고, 통합 모드인 계좌(새로
+      // 만든 계좌, 혹은 방금 시드된 기본 계좌)는 통합 자산배분을 미러링한다.
+      await migrateExistingAccountsToIndividualAllocation();
+      await syncAllUnifiedMirrors();
     })();
   }, []);
 

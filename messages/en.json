@@ -57,7 +57,21 @@
     "copyHint": "Copying replaces all of this account's existing categories with the selected account's categories. Holdings in a category with a matching name are automatically moved to the new category and kept, but holdings in a category with no matching name in the source account are deleted along with it.",
     "copyConfirm": "Replace this account's categories with those from \"{source}\"? All existing categories here will be deleted.",
     "copyConfirmWithLoss": "Replace this account's categories with those from \"{source}\"? All existing categories here will be deleted, and {count} holding(s) with nowhere to move to will be deleted along with them. This cannot be undone.",
-    "copyLossWarning": "⚠ {count} holding(s) in this account have no matching category and will be deleted."
+    "copyLossWarning": "⚠ {count} holding(s) in this account have no matching category and will be deleted.",
+    "modeLabel": "This account's allocation",
+    "modeIndividual": "Individual",
+    "modeUnified": "Unified",
+    "modeHint": "Choose Unified to follow the single shared target allocation used by every 'Unified' account (percentages can't be edited here — edit the shared allocation itself instead). Choose Individual to define and edit this account's own categories. New accounts default to Unified.",
+    "unifiedLabel": "Unified allocation",
+    "unifiedFollowNote": "This account follows the unified allocation. The values below are currently in effect and can't be edited here — to change them, use \"Edit unified allocation\" below to edit the source.",
+    "unifiedEmptyNote": "No categories yet.",
+    "showUnifiedEditor": "Edit unified allocation ▸",
+    "hideUnifiedEditor": "Close unified allocation editor ▾",
+    "unifiedEditorTitle": "Unified Allocation (shared by every 'Unified' account)",
+    "unifiedEditorDescription": "Changes here apply immediately to every account in Unified mode. Renaming a category doesn't break any account's holdings links (they're connected by a stable internal id — the name is just a display label). Deleting a category also deletes the holdings in every account that mirrors it, so you'll see how many accounts/holdings are affected before it happens.",
+    "unifiedEditorAppliesNote": "The total above is for the unified allocation itself. It doesn't affect accounts switched to Individual mode.",
+    "unifiedRemoveConfirm": "Delete category \"{name}\"? It will also be removed from every unified account that mirrors it.",
+    "unifiedRemoveConfirmWithLoss": "Delete category \"{name}\"? {count} holding(s) across {accounts} account(s) that follow it will be deleted too. This can't be undone."
   },
   "holdings": {
     "title": "Holdings",
@@ -154,7 +168,8 @@
     "usSubjectToNiitLabel": "Subject to Net Investment Income Tax (NIIT 3.8%)",
     "usTaxSettingsNote": "The long-term rate is estimated automatically from your filing status and taxable income (same logic as the US tab in the Tax Benefit Calculator). This calculator doesn't model the full US federal ordinary-income brackets, so enter your own marginal rate for the short-term rate. Holding period (long/short-term) is approximated from the quantity-weighted average purchase date of your buy lots.",
     "costNoteUs": "This US-residency capital gains estimate is based on this single sale only. Your actual tax liability depends on your other gains/losses for the year and your overall income. Yearly cumulative realized gains (split by long/short-term) are available on the Transaction History page.",
-    "usResidencyNote": "Calculating under US tax residency. For KR-listed stock sales, an estimated US federal capital gains tax is shown alongside the KR securities transaction tax. This is not tax advice."
+    "usResidencyNote": "Calculating under US tax residency. For KR-listed stock sales, an estimated US federal capital gains tax is shown alongside the KR securities transaction tax. This is not tax advice.",
+    "usdKrwRateInfo": "This rate is used to convert KRW and USD holdings and your deposit amount into a single base currency (KRW) to calculate target percentages. The resulting buy/sell amounts are then converted back into each holding's original currency. It defaults to a live rate (Frankfurter.app); editing it overrides the live rate."
   },
   "settings": {
     "title": "Settings & Backup",

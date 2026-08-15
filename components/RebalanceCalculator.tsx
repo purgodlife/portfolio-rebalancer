@@ -183,7 +183,8 @@ export default function RebalanceCalculator() {
           </div>
           <div>
             <label className="block text-xs text-gray-500 mb-1">
-              USD/KRW {fx.loading && !rateTouchedByUser && '(조회 중...)'}
+              USD/KRW {fx.loading && !rateTouchedByUser && '(조회 중...)'}{' '}
+              <InfoTooltip text={t('usdKrwRateInfo')} />
             </label>
             <input
               type="number"
