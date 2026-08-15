@@ -21,6 +21,7 @@ import TickerLogo from './TickerLogo';
 import CurrentAccountBadge from './CurrentAccountBadge';
 import type { StockEntry } from '@/lib/search/stockData';
 import type { Currency, LotType, Market } from '@/lib/rebalance/types';
+import { matchesAnyQuery } from '@/lib/search/textFilter';
 
 const EMPTY_FORM = {
   ticker: '',
@@ -56,10 +57,14 @@ export default function HoldingsEditor() {
   const [lotForm, setLotForm] = useState<{ groupKey: string; type: LotType } | null>(null);
   const [lotFormValues, setLotFormValues] = useState(EMPTY_LOT_FORM);
   const [lotFormError, setLotFormError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [bulkRefreshing, setBulkRefreshing] = useState(false);
+  const [bulkProgress, setBulkProgress] = useState<{ done: number; total: number } | null>(null);
   const fx = useUsdKrwRate();
   const currentFxRate = fx.rate ?? FALLBACK_USD_KRW_RATE;
 
   const groups = groupHoldings(holdings);
+  const filteredGroups = groups.filter((g) => matchesAnyQuery([g.ticker, g.name], searchQuery));
 
   function onMarketChange(market: Market) {
     setForm((f) => ({
@@ -130,6 +135,19 @@ export default function HoldingsEditor() {
       return;
     }
     await Promise.all(group.lots.map((lot) => updateHolding({ ...lot, currentPrice: quote.price })));
+  }
+
+  async function refreshAllPrices() {
+    const targets = groups.filter((g) => g.netQuantity !== 0);
+    if (targets.length === 0) return;
+    setBulkRefreshing(true);
+    setBulkProgress({ done: 0, total: targets.length });
+    for (let i = 0; i < targets.length; i++) {
+      await refreshGroupPrice(targets[i]);
+      setBulkProgress({ done: i + 1, total: targets.length });
+    }
+    setBulkRefreshing(false);
+    setBulkProgress(null);
   }
 
   async function setGroupCurrentPrice(group: HoldingGroup, value: string) {
@@ -215,7 +233,29 @@ export default function HoldingsEditor() {
         </span>
       </div>
       <p className="text-sm text-gray-500 mb-1">{t('description')}</p>
-      <p className="text-xs text-gray-400 mb-4">{t('groupedHint')}</p>
+      <p className="text-xs text-gray-400 mb-3">{t('groupedHint')}</p>
+
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <input
+          type="text"
+          className="input max-w-xs"
+          placeholder={t('searchPlaceholder')}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        {groups.length > 0 && (
+          <button
+            type="button"
+            className="shrink-0 rounded-md border border-gray-300 px-2.5 py-1.5 text-xs text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+            disabled={bulkRefreshing}
+            onClick={refreshAllPrices}
+          >
+            {bulkRefreshing
+              ? `${t('refreshAllPrices')} (${bulkProgress?.done ?? 0}/${bulkProgress?.total ?? 0})`
+              : t('refreshAllPrices')}
+          </button>
+        )}
+      </div>
 
       <div className="overflow-x-auto mb-5">
         <table className="w-full text-left">
@@ -235,7 +275,14 @@ export default function HoldingsEditor() {
             </tr>
           </thead>
           <tbody>
-            {groups.map((g) => {
+            {groups.length > 0 && filteredGroups.length === 0 && (
+              <tr>
+                <td className="table-cell text-sm text-gray-400" colSpan={11}>
+                  {t('noSearchResults')}
+                </td>
+              </tr>
+            )}
+            {filteredGroups.map((g) => {
               const evalAmount = g.currentPrice * g.netQuantity;
               const gain = (g.currentPrice - g.avgBuyPrice) * g.netQuantity;
               const isOpen = !!expanded[g.key];
@@ -253,10 +300,16 @@ export default function HoldingsEditor() {
                     <td className="table-cell">{g.name}</td>
                     <td className="table-cell" onClick={(e) => e.stopPropagation()}>
                       <select
-                        className="input py-1 text-xs"
+                        className="min-w-[160px] rounded-md border border-gray-300 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
                         value={g.categoryId}
+                        title={t('moveToAccountCategory')}
                         onChange={(e) => moveGroupToCategory(g, e.target.value)}
                       >
+                        {!categoryMoveOptions.some((opt) => opt.id === g.categoryId) && (
+                          <option value={g.categoryId} disabled>
+                            {categoryName(g.categoryId)}
+                          </option>
+                        )}
                         {categoryMoveOptions.map((opt) => (
                           <option key={opt.id} value={opt.id}>
                             {opt.label}
@@ -340,7 +393,9 @@ export default function HoldingsEditor() {
                                 <button
                                   type="button"
                                   className="ml-auto shrink-0 text-red-400 hover:text-red-600"
-                                  onClick={() => removeHolding(lot.id)}
+                                  onClick={() => {
+                                    if (window.confirm(t('deleteLotConfirm'))) removeHolding(lot.id);
+                                  }}
                                 >
                                   {tc('delete')}
                                 </button>

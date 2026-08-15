@@ -11,6 +11,7 @@ import { calculateTradeCost } from '@/lib/tax/tradeCosts';
 import type { Currency } from '@/lib/rebalance/types';
 import CurrentAccountBadge from './CurrentAccountBadge';
 import InfoTooltip from './InfoTooltip';
+import OnboardingChecklist from './OnboardingChecklist';
 
 const TOLERANCE = 0.05;
 
@@ -71,6 +72,7 @@ export default function RebalanceCalculator() {
   return (
     <div className="space-y-5">
       <CurrentAccountBadge />
+      <OnboardingChecklist hasCategories={categories.length > 0} hasHoldings={holdings.length > 0} />
       <div className="card">
         <h2 className="text-lg font-semibold mb-1">{t('title')}</h2>
         <p className="text-sm text-gray-500 mb-4">{t('description')}</p>

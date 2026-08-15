@@ -91,7 +91,12 @@
     "lotPrice": "단가",
     "sellExceedsHolding": "보유 수량보다 많이 팔 수 없습니다.",
     "groupedHint": "같은 종목을 다시 추가하면 자동으로 합산됩니다. 종목명을 눌러 펼치면 개별 매수·매도 내역을 확인·수정할 수 있습니다.",
-    "noLotsYet": "매수 내역이 없습니다."
+    "noLotsYet": "매수 내역이 없습니다.",
+    "moveToAccountCategory": "다른 계좌·카테고리로 옮기려면 선택하세요.",
+    "deleteLotConfirm": "이 매수·매도 내역을 삭제할까요? 되돌릴 수 없습니다.",
+    "refreshAllPrices": "전체 새로고침",
+    "searchPlaceholder": "티커 또는 종목명으로 검색",
+    "noSearchResults": "검색 결과가 없습니다."
   },
   "calculator": {
     "title": "리밸런싱 계산기",
@@ -230,7 +235,7 @@
     "fitTitle": "계좌 운용 적합도",
     "fitDescription": "{accountType} 계좌의 세제 혜택·매매 가능 범위 취지에 맞게 보유종목이 운용되고 있는지 점검합니다.",
     "fitDisclaimer": "이 점검은 종목명 기반 추정(예: ETF 이름에 \"미국\"/\"채권\" 등이 있으면 해외·채권형으로 추정)을 일부 포함한 참고용 정보이며, 정확한 상품 분류는 투자설명서로 확인해야 합니다.",
-    "fitSource": "출처: 조세특례제한법 제91조의18(ISA 과세특례), 자본시장법 시행령(파생상품 위험자산 한도)",
+    "fitSource": "출처: 조세특례제한법 제91조의18(ISA 과세특례), 자본시장법 시행령(파생상품 위험자산 한도), IRS Publication 590-A/B(미국 IRA 일반 규정)",
     "finding_generalNoRestriction": "일반계좌는 특별한 세제 혜택이나 매매 제한이 없어 자유롭게 운용됩니다.",
     "finding_foreignDirectStock": "해외(미국) 거래소에 직접 상장된 종목이라 이 계좌 유형에서는 매매할 수 없습니다. 실제로는 다른 계좌에서 보유 중이거나, 이 앱에서 계좌 구분이 잘못됐을 수 있습니다.",
     "finding_isaTaxableEtfGood": "매매차익이 원래 과세 대상일 가능성이 높은 상품으로 추정되어(해외지수·채권형 등) ISA 비과세·저율과세 효과를 잘 활용하고 있습니다.",
@@ -239,7 +244,11 @@
     "finding_isaLowBenefitStock": "배당수익률이 낮은 국내 개별주식입니다. 매매차익은 원래도 비과세라 ISA 안에 담아도 추가 절세 효과는 크지 않을 수 있습니다.",
     "finding_pensionLeverageBanned": "레버리지·인버스 상품으로 추정됩니다. 연금저축·IRP 계좌에서는 이런 상품의 매매가 전면 금지되어 있어, 실제로는 매매가 불가능하거나 계좌 구분에 오류가 있을 수 있습니다.",
     "finding_irpRiskyAssetLimitInfo": "IRP는 위험자산(주식형 ETF·펀드 등)이 적립금의 최대 70%까지만 허용됩니다. 이 앱은 원리금보장형 상품 잔액을 따로 입력받지 않으므로, 실제 비중은 증권사 앱에서 다시 확인하세요.",
-    "finding_noIssuesFound": "특별히 확인이 필요한 항목이 없습니다."
+    "finding_noIssuesFound": "특별히 확인이 필요한 항목이 없습니다.",
+    "finding_usAccountKrListedStockCheck": "국내(KR) 거래소에 상장된 종목입니다. 미국 401(k)/IRA 계좌는 대부분 미국 거래소 상장 종목·ETF만 매매를 지원하고 해외(한국 등) 거래소에 직접 상장된 종목은 지원하지 않는 경우가 많습니다(법으로 금지된 것은 아니며 증권사마다 다를 수 있음). 실제로 이 계좌에서 매매 가능한지 증권사에 확인해보세요.",
+    "finding_usRothAfterTaxInfo": "Roth IRA는 세후 자금으로 납입하며, 요건을 충족하면 인출 시 원금과 수익 모두 비과세입니다. 연간 납입한도와 소득 기준 납입 가능 여부는 세제혜택 계산기(미국 탭)에서 확인할 수 있습니다.",
+    "finding_usTraditionalPreTaxInfo": "Traditional IRA는 소득공제(세전 효과)를 받을 수 있고, 인출 시 원금과 수익 모두 일반소득으로 과세됩니다. 직장 은퇴플랜 가입 여부와 소득에 따라 공제 가능액이 줄어들 수 있습니다(세제혜택 계산기 참고).",
+    "finding_us401kInfo": "401(k)는 세전 급여공제 방식이 기본이며, 고용주 매칭·베스팅 규정은 플랜마다 다릅니다. 연간 납입한도는 세제혜택 계산기(미국 탭)에서 확인할 수 있습니다."
   },
   "ticker": {
     "kospi": "KOSPI",
@@ -274,7 +283,9 @@
     "colChange": "등락률",
     "colLinks": "외부 링크",
     "loadQuote": "현재가 조회",
-    "quoteError": "조회 실패"
+    "quoteError": "조회 실패",
+    "searchPlaceholder": "티커 또는 종목명으로 검색",
+    "noSearchResults": "검색 결과가 없습니다."
   },
   "taxBenefits": {
     "title": "세제혜택 계산기",
@@ -305,11 +316,13 @@
     "estimatedTax": "예상 세금(9.9%)",
     "taxSavingsVsGeneral": "일반계좌 대비 절세액",
     "sourceNts": "출처: 국세청 「연금계좌 세액공제」, 소득세법 제59조의3",
-    "sourceIsa": "출처: 조세특례제한법 제91조의18(ISA 과세특례)"
+    "sourceIsa": "출처: 조세특례제한법 제91조의18(ISA 과세특례)",
+    "jurisdictionKr": "한국",
+    "jurisdictionUs": "미국"
   },
   "accounts": {
     "title": "계좌 관리",
-    "description": "계좌(연금저축·IRP·ISA·일반계좌)마다 목표 자산배분과 보유종목을 완전히 분리해서 관리합니다. 계좌를 지우면 그 계좌의 자산배분·보유종목도 함께 지워집니다.",
+    "description": "계좌(연금저축·IRP·ISA 등 한국 계좌, 401(k)·Traditional IRA·Roth IRA 등 미국 계좌, 일반계좌)마다 목표 자산배분과 보유종목을 완전히 분리해서 관리합니다. 계좌를 지우면 그 계좌의 자산배분·보유종목도 함께 지워집니다.",
     "switcherLabel": "계좌 선택",
     "currentAccountLabel": "현재 계좌",
     "current": "현재 보는 중",
@@ -322,6 +335,60 @@
     "type_general": "일반계좌",
     "type_pensionSavings": "연금저축",
     "type_irp": "IRP(개인형퇴직연금)",
-    "type_isa": "ISA"
+    "type_isa": "ISA",
+    "countryGroupCommon": "공통",
+    "countryGroupKr": "한국 계좌",
+    "countryGroupUs": "미국 계좌",
+    "type_us401k": "401(k)",
+    "type_usTraditionalIra": "Traditional IRA",
+    "type_usRothIra": "Roth IRA"
+  },
+  "usTaxBenefits": {
+    "notAdviceWarning": "이 계산은 참고용 정보이며 세무 자문이 아닙니다. 실제 결과는 주(state) 세금, 다른 소득·공제 항목 등에 따라 달라질 수 있습니다. 정확한 금액은 IRS 공식 워크시트(Publication 590-A/B) 또는 세무사를 통해 확인하세요. 모든 수치는 2026년 과세연도(tax year 2026) 기준입니다.",
+    "contributionTitle": "401(k) / IRA 연간 납입한도",
+    "contributionInfo": "401(k)(403(b)·457·TSP 포함)와 IRA는 나이에 따라 기본 납입한도에 추가 납입(catch-up)이 더해집니다. 60~63세는 더 높은 특별 catch-up이 적용됩니다.",
+    "age": "나이",
+    "employee401kLimit": "401(k) 기본 납입한도",
+    "catchUp": "추가 납입(catch-up)",
+    "total401kLimit": "401(k) 합계 한도",
+    "iraBase": "IRA 기본 납입한도",
+    "iraTotal": "IRA 합계 한도(Traditional+Roth 합산)",
+    "traditionalTitle": "Traditional IRA 소득공제 가능액",
+    "traditionalInfo": "본인·배우자 모두 직장 은퇴플랜(401(k) 등) 미가입이면 소득과 무관하게 전액 공제됩니다. 가입되어 있다면 MAGI(수정조정총소득) 구간에 따라 공제 가능액이 줄어듭니다.",
+    "filingStatus": "신고 유형(filing status)",
+    "filingStatusSingle": "단독(Single)",
+    "filingStatusMfj": "부부합산신고(Married Filing Jointly)",
+    "filingStatusMfs": "부부별도신고(Married Filing Separately)",
+    "magi": "수정조정총소득(MAGI)",
+    "coveredByWorkplacePlan": "본인이 직장 은퇴플랜(401(k) 등)에 가입되어 있음",
+    "spouseCovered": "배우자가 직장 은퇴플랜에 가입되어 있음(본인 미가입)",
+    "contributionAmount": "IRA 납입 예정액",
+    "deductibleFraction": "공제 가능 비율",
+    "deductibleAmount": "공제 가능액",
+    "nonDeductibleAmount": "공제 불가액",
+    "rothTitle": "Roth IRA 납입 가능액",
+    "rothInfo": "Roth IRA는 세후 자금으로 납입하고 요건 충족 시 인출이 전액 비과세입니다. 다만 MAGI가 일정 구간을 넘으면 납입 가능액이 줄어들거나 아예 납입할 수 없습니다.",
+    "desiredContribution": "납입 희망액",
+    "eligibleFraction": "소득 기준 허용 비율",
+    "maxAllowedContribution": "납입 가능 최대액",
+    "disallowedAmount": "납입 불가액",
+    "ltcgTitle": "장기 양도소득세(LTCG) 구간 참고",
+    "ltcgInfo": "1년 넘게 보유한 자산의 매매차익에는 0%/15%/20% 중 하나의 연방 세율이 적용됩니다(과세대상소득 기준). 고소득자는 3.8% 순투자소득세(NIIT)가 추가될 수 있습니다.",
+    "taxableIncome": "과세대상소득(연간)",
+    "ltcgRate": "적용 세율 구간",
+    "niitNote": "과세대상소득이 일정 기준(단독 20만 달러대, 부부합산 25만 달러)을 넘는 고소득자는 위 세율에 3.8% 순투자소득세(NIIT)가 추가로 부과될 수 있습니다. 이 계산기에는 NIIT가 반영되지 않았습니다.",
+    "sourceIrs401k": "출처: IRS, \"401(k) limit increases to $24,500 for 2026, IRA limit increases to $7,500\" (IR-2025-111)",
+    "sourceIrsIra": "출처: 위 IRS 보도자료(IR-2025-111) 내 IRA·Roth IRA 소득 phase-out 안내, IRS Publication 590-A",
+    "sourceIrsLtcg": "출처: IRS Revenue Procedure 2025-32(2026년 소득세 물가연동 조정)"
+  },
+  "onboarding": {
+    "title": "시작하기",
+    "description": "아래 순서대로 진행하면 리밸런싱 계산을 바로 사용할 수 있어요.",
+    "step1Title": "자산배분 카테고리 설정하기",
+    "step1Cta": "설정하러 가기",
+    "step2Title": "보유종목 입력하기",
+    "step2Cta": "입력하러 가기",
+    "step3Title": "아래에서 입금액을 입력하고 리밸런싱 계산 결과 확인하기",
+    "dismiss": "닫기"
   }
 }

@@ -8,6 +8,7 @@ import ExternalLinks from './ExternalLinks';
 import TickerLogo from './TickerLogo';
 import { fetchCurrentPrice, type QuoteResult } from '@/lib/market/quote';
 import { primaryLabel, secondaryLabel } from '@/lib/format/holdingLabel';
+import { matchesAnyQuery } from '@/lib/search/textFilter';
 import type { StockEntry } from '@/lib/search/stockData';
 import type { Market } from '@/lib/rebalance/types';
 import type { WatchlistItem } from '@/lib/storage/db';
@@ -27,6 +28,8 @@ export default function Watchlist() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [formError, setFormError] = useState<string | null>(null);
   const [quotes, setQuotes] = useState<Record<string, QuoteState>>({});
+  const [searchQuery, setSearchQuery] = useState('');
+  const filteredItems = items.filter((i) => matchesAnyQuery([i.ticker, i.name], searchQuery));
 
   function key(item: Pick<WatchlistItem, 'ticker' | 'market'>): string {
     return `${item.market}:${item.ticker}`;
@@ -112,7 +115,7 @@ export default function Watchlist() {
       </div>
 
       <div className="card overflow-x-auto">
-        <div className="mb-3 flex items-center justify-between">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-medium text-gray-900">{t('listTitle')}</h2>
           {items.length > 0 && (
             <button type="button" className="text-sm text-brand-600 hover:underline" onClick={() => refreshAll(items)}>
@@ -120,8 +123,19 @@ export default function Watchlist() {
             </button>
           )}
         </div>
+        {items.length > 0 && (
+          <input
+            type="text"
+            className="input mb-3 max-w-xs"
+            placeholder={t('searchPlaceholder')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        )}
         {items.length === 0 ? (
           <p className="text-sm text-gray-500">{t('empty')}</p>
+        ) : filteredItems.length === 0 ? (
+          <p className="text-sm text-gray-400">{t('noSearchResults')}</p>
         ) : (
           <table className="w-full text-sm">
             <thead>
@@ -134,7 +148,7 @@ export default function Watchlist() {
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => {
+              {filteredItems.map((item) => {
                 const k = key(item);
                 const state = quotes[k];
                 const changePercent = state?.quote?.changePercent ?? null;

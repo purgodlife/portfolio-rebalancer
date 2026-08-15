@@ -5,14 +5,29 @@ import { useTranslations } from 'next-intl';
 import { useAccounts, addAccount, updateAccount, removeAccount } from '@/lib/storage/hooks';
 import { useSelectedAccountId, useSetSelectedAccountId } from '@/lib/storage/accountContext';
 import type { Account, AccountType } from '@/lib/rebalance/types';
-
-const ACCOUNT_TYPES: AccountType[] = ['general', 'pensionSavings', 'irp', 'isa'];
+import { ACCOUNT_TYPE_GROUPS } from '@/lib/rebalance/accountTypeGroups';
 
 /**
  * 계좌(포트폴리오) 관리 화면. 계좌마다 자산배분·보유종목·거래내역·자산추이가
  * 완전히 분리되어 있으므로, 계좌를 지우면 그 계좌의 카테고리/보유종목도
  * 함께 지워진다(연쇄 삭제). 최소 1개 계좌는 항상 남아있어야 한다.
  */
+function AccountTypeOptions({ t }: { t: (key: string) => string }) {
+  return (
+    <>
+      {ACCOUNT_TYPE_GROUPS.map((group) => (
+        <optgroup key={group.labelKey} label={t(group.labelKey)}>
+          {group.types.map((type) => (
+            <option key={type} value={type}>
+              {t(`type_${type}`)}
+            </option>
+          ))}
+        </optgroup>
+      ))}
+    </>
+  );
+}
+
 export default function AccountsManager() {
   const t = useTranslations('accounts');
   const tc = useTranslations('common');
@@ -73,11 +88,7 @@ export default function AccountsManager() {
               value={a.type}
               onChange={(e) => updateAccount({ ...a, type: e.target.value as AccountType })}
             >
-              {ACCOUNT_TYPES.map((type) => (
-                <option key={type} value={type}>
-                  {t(`type_${type}`)}
-                </option>
-              ))}
+              <AccountTypeOptions t={t} />
             </select>
             <button
               type="button"
@@ -111,11 +122,7 @@ export default function AccountsManager() {
             onChange={(e) => setNewName(e.target.value)}
           />
           <select className="input" value={newType} onChange={(e) => setNewType(e.target.value as AccountType)}>
-            {ACCOUNT_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {t(`type_${type}`)}
-              </option>
-            ))}
+            <AccountTypeOptions t={t} />
           </select>
           <button type="button" className="btn-secondary whitespace-nowrap" onClick={handleAdd}>
             {t('addButton')}

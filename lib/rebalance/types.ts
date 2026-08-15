@@ -3,11 +3,20 @@ export type Currency = 'KRW' | 'USD';
 export type LotType = 'buy' | 'sell';
 
 /**
- * 계좌 유형. 일반계좌는 세제 혜택이 없고, 연금저축/IRP/ISA는 각각 다른 세제
- * 혜택·한도가 적용된다(세제혜택 계산기 화면 참고). 계좌 유형은 표시·분류
- * 용도로만 쓰이고, 리밸런싱 계산 로직 자체는 계좌 유형을 구분하지 않는다.
+ * 계좌 유형. 일반계좌는 세제 혜택이 없고, 연금저축/IRP/ISA(한국)와
+ * 401(k)/Traditional IRA/Roth IRA(미국)는 각각 나라별로 다른 세제 혜택·한도가
+ * 적용된다(세제혜택 계산기 화면 참고, lib/tax/taxBenefits.ts·lib/tax/usTaxBenefits.ts).
+ * 계좌 유형은 표시·분류 용도로만 쓰이고, 리밸런싱 계산 로직 자체는 계좌
+ * 유형을 구분하지 않는다. 국가별 그룹핑은 lib/rebalance/accountTypeGroups.ts 참고.
  */
-export type AccountType = 'general' | 'pensionSavings' | 'irp' | 'isa';
+export type AccountType =
+  | 'general'
+  | 'pensionSavings'
+  | 'irp'
+  | 'isa'
+  | 'us401k'
+  | 'usTraditionalIra'
+  | 'usRothIra';
 
 /**
  * 계좌(포트폴리오) 단위. 카테고리(목표 자산배분)는 계좌에 속하고, 보유종목은

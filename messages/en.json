@@ -91,7 +91,12 @@
     "lotPrice": "Price",
     "sellExceedsHolding": "Cannot sell more than you currently hold.",
     "groupedHint": "Adding the same ticker again merges it automatically. Click a row to expand and view or edit individual buy/sell records.",
-    "noLotsYet": "No buy records yet."
+    "noLotsYet": "No buy records yet.",
+    "moveToAccountCategory": "Select to move this holding to a different account/category.",
+    "deleteLotConfirm": "Delete this buy/sell entry? This cannot be undone.",
+    "refreshAllPrices": "Refresh all",
+    "searchPlaceholder": "Search by ticker or name",
+    "noSearchResults": "No matching holdings."
   },
   "calculator": {
     "title": "Rebalance Calculator",
@@ -230,7 +235,7 @@
     "fitTitle": "Account Fit Check",
     "fitDescription": "Checks whether your holdings in this {accountType} account actually match its tax benefits and trading scope.",
     "fitDisclaimer": "This check includes name-based heuristics (e.g. an ETF named \"US\" or \"Bond\" is assumed foreign/bond-type) and is for reference only — verify exact product classification in the prospectus.",
-    "fitSource": "Source: Restriction of Special Taxation Act Art. 91-18 (ISA); Enforcement Decree of the Financial Investment Services Act (derivative risky-asset limits)",
+    "fitSource": "Source: Restriction of Special Taxation Act Art. 91-18 (ISA); Enforcement Decree of the Financial Investment Services Act (derivative risky-asset limits); IRS Publication 590-A/B (US IRA general rules)",
     "finding_generalNoRestriction": "A general account has no special tax benefits or trading restrictions — it can be managed freely.",
     "finding_foreignDirectStock": "This is a stock listed directly on a foreign (US) exchange, which this account type cannot trade. It may actually be held in a different account, or the account assignment in this app may be incorrect.",
     "finding_isaTaxableEtfGood": "This appears to be a product whose gains would normally be taxed (e.g. foreign-index or bond-type), so it makes good use of the ISA tax-free/reduced-rate benefit.",
@@ -239,7 +244,11 @@
     "finding_isaLowBenefitStock": "This is a domestic individual stock with a low dividend yield. Since its capital gains were already tax-free, holding it in an ISA may add little extra benefit.",
     "finding_pensionLeverageBanned": "This appears to be a leveraged/inverse product. Pension savings and IRP accounts are fully prohibited from trading these, so this may not actually be tradeable, or the account assignment may be incorrect.",
     "finding_irpRiskyAssetLimitInfo": "IRP accounts can only allocate up to 70% of the balance to risky assets (equity ETFs/funds, etc). This app doesn't track principal-guaranteed product balances, so verify the real ratio in your brokerage app.",
-    "finding_noIssuesFound": "No issues to flag."
+    "finding_noIssuesFound": "No issues to flag.",
+    "finding_usAccountKrListedStockCheck": "This is a stock listed on a domestic (KR) exchange. Most US 401(k)/IRA accounts only support trading US-exchange-listed stocks/ETFs, not securities listed directly on foreign exchanges (this is a brokerage limitation, not a legal prohibition, and varies by broker). Check with your broker whether this holding is actually tradeable in this account.",
+    "finding_usRothAfterTaxInfo": "Roth IRA contributions are after-tax, and qualified withdrawals of both principal and earnings are tax-free. Check the annual contribution limit and income-based eligibility on the Tax Benefits page (US tab).",
+    "finding_usTraditionalPreTaxInfo": "Traditional IRA contributions may be tax-deductible (pre-tax effect), and withdrawals of both principal and earnings are taxed as ordinary income. The deductible amount can be reduced based on workplace-plan coverage and income (see the Tax Benefits page).",
+    "finding_us401kInfo": "401(k) contributions are pre-tax payroll deductions by default; employer matching and vesting rules vary by plan. Check the annual contribution limit on the Tax Benefits page (US tab)."
   },
   "ticker": {
     "kospi": "KOSPI",
@@ -274,7 +283,9 @@
     "colChange": "Change",
     "colLinks": "Links",
     "loadQuote": "Load price",
-    "quoteError": "Failed"
+    "quoteError": "Failed",
+    "searchPlaceholder": "Search by ticker or name",
+    "noSearchResults": "No matching items."
   },
   "taxBenefits": {
     "title": "Tax Benefit Calculator",
@@ -305,11 +316,13 @@
     "estimatedTax": "Estimated tax (9.9%)",
     "taxSavingsVsGeneral": "Savings vs. regular account",
     "sourceNts": "Source: National Tax Service, \"Pension Account Tax Credit\"; Income Tax Act Art. 59-3",
-    "sourceIsa": "Source: Restriction of Special Taxation Act Art. 91-18 (ISA tax treatment)"
+    "sourceIsa": "Source: Restriction of Special Taxation Act Art. 91-18 (ISA tax treatment)",
+    "jurisdictionKr": "Korea",
+    "jurisdictionUs": "United States"
   },
   "accounts": {
     "title": "Accounts",
-    "description": "Keep target allocation and holdings fully separate per account (pension savings, IRP, ISA, general). Deleting an account also deletes its allocation and holdings.",
+    "description": "Keep target allocation and holdings fully separate per account — Korean accounts (pension savings, IRP, ISA), US accounts (401(k), Traditional/Roth IRA), or general. Deleting an account also deletes its allocation and holdings.",
     "switcherLabel": "Select account",
     "currentAccountLabel": "Account",
     "current": "Viewing",
@@ -322,6 +335,60 @@
     "type_general": "General",
     "type_pensionSavings": "Pension Savings",
     "type_irp": "IRP",
-    "type_isa": "ISA"
+    "type_isa": "ISA",
+    "countryGroupCommon": "Common",
+    "countryGroupKr": "Korean accounts",
+    "countryGroupUs": "US accounts",
+    "type_us401k": "401(k)",
+    "type_usTraditionalIra": "Traditional IRA",
+    "type_usRothIra": "Roth IRA"
+  },
+  "usTaxBenefits": {
+    "notAdviceWarning": "This is reference information only, not tax advice. Actual results depend on state taxes and your full income/deduction profile. Check the official IRS worksheets (Publication 590-A/B) or a tax professional for exact figures. All figures are for tax year 2026.",
+    "contributionTitle": "401(k) / IRA Annual Contribution Limits",
+    "contributionInfo": "401(k) plans (including 403(b)/457/TSP) and IRAs add an age-based catch-up contribution on top of the base limit. Ages 60-63 get a higher special catch-up.",
+    "age": "Age",
+    "employee401kLimit": "401(k) base limit",
+    "catchUp": "Catch-up contribution",
+    "total401kLimit": "401(k) total limit",
+    "iraBase": "IRA base limit",
+    "iraTotal": "IRA total limit (Traditional + Roth combined)",
+    "traditionalTitle": "Traditional IRA Deductible Amount",
+    "traditionalInfo": "If neither you nor your spouse is covered by a workplace retirement plan, contributions are fully deductible regardless of income. If covered, the deductible amount phases out based on your MAGI.",
+    "filingStatus": "Filing status",
+    "filingStatusSingle": "Single",
+    "filingStatusMfj": "Married Filing Jointly",
+    "filingStatusMfs": "Married Filing Separately",
+    "magi": "Modified AGI (MAGI)",
+    "coveredByWorkplacePlan": "I'm covered by a workplace retirement plan (e.g. 401(k))",
+    "spouseCovered": "My spouse is covered by a workplace plan (I'm not)",
+    "contributionAmount": "Planned IRA contribution",
+    "deductibleFraction": "Deductible fraction",
+    "deductibleAmount": "Deductible amount",
+    "nonDeductibleAmount": "Non-deductible amount",
+    "rothTitle": "Roth IRA Eligible Contribution",
+    "rothInfo": "Roth IRA contributions are after-tax, and qualified withdrawals are fully tax-free. Above a certain MAGI, the amount you can contribute is reduced or eliminated entirely.",
+    "desiredContribution": "Desired contribution",
+    "eligibleFraction": "Income-based eligible fraction",
+    "maxAllowedContribution": "Max allowed contribution",
+    "disallowedAmount": "Disallowed amount",
+    "ltcgTitle": "Long-Term Capital Gains (LTCG) Bracket Reference",
+    "ltcgInfo": "Gains on assets held over a year are taxed federally at 0%, 15%, or 20% based on taxable income. High earners may owe an additional 3.8% Net Investment Income Tax (NIIT).",
+    "taxableIncome": "Taxable income (annual)",
+    "ltcgRate": "Applicable rate bracket",
+    "niitNote": "Above certain thresholds (roughly $200k single / $250k married filing jointly), an additional 3.8% Net Investment Income Tax (NIIT) may apply on top of the rate above. NIIT is not included in this calculator.",
+    "sourceIrs401k": "Source: IRS, \"401(k) limit increases to $24,500 for 2026, IRA limit increases to $7,500\" (IR-2025-111)",
+    "sourceIrsIra": "Source: IRA/Roth IRA income phase-out guidance in the IRS release above (IR-2025-111); IRS Publication 590-A",
+    "sourceIrsLtcg": "Source: IRS Revenue Procedure 2025-32 (2026 inflation adjustments)"
+  },
+  "onboarding": {
+    "title": "Getting Started",
+    "description": "Follow these steps and you'll be ready to run the rebalance calculator.",
+    "step1Title": "Set up target allocation categories",
+    "step1Cta": "Go set up",
+    "step2Title": "Enter your holdings",
+    "step2Cta": "Go enter",
+    "step3Title": "Enter a deposit amount below and check the rebalance result",
+    "dismiss": "Dismiss"
   }
 }

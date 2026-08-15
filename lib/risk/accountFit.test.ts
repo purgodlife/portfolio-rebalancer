@@ -83,4 +83,31 @@ describe('evaluateAccountFit', () => {
     const report = evaluateAccountFit('pensionSavings', []);
     expect(report.findings).toEqual([{ level: 'good', key: 'noIssuesFound' }]);
   });
+
+  it('flags KR-market holdings as a low-severity check for US retirement accounts', () => {
+    for (const type of ['us401k', 'usTraditionalIra', 'usRothIra'] as const) {
+      const report = evaluateAccountFit(type, [h({ market: 'KR', ticker: '005930', name: '삼성전자' })]);
+      expect(report.findings.some((f) => f.level === 'low' && f.key === 'usAccountKrListedStockCheck')).toBe(true);
+    }
+  });
+
+  it('does not flag US-market holdings for US retirement accounts', () => {
+    const report = evaluateAccountFit('us401k', [h({ market: 'US', ticker: 'AAPL', name: 'Apple' })]);
+    expect(report.findings.some((f) => f.key === 'usAccountKrListedStockCheck')).toBe(false);
+  });
+
+  it('adds an after-tax informational note for Roth IRA', () => {
+    const report = evaluateAccountFit('usRothIra', [h({ market: 'US' })]);
+    expect(report.findings.some((f) => f.level === 'info' && f.key === 'usRothAfterTaxInfo')).toBe(true);
+  });
+
+  it('adds a pre-tax informational note for Traditional IRA', () => {
+    const report = evaluateAccountFit('usTraditionalIra', [h({ market: 'US' })]);
+    expect(report.findings.some((f) => f.level === 'info' && f.key === 'usTraditionalPreTaxInfo')).toBe(true);
+  });
+
+  it('adds a general 401(k) informational note', () => {
+    const report = evaluateAccountFit('us401k', [h({ market: 'US' })]);
+    expect(report.findings.some((f) => f.level === 'info' && f.key === 'us401kInfo')).toBe(true);
+  });
 });
