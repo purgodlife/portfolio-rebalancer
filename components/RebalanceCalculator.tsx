@@ -16,6 +16,8 @@ import type { Currency } from '@/lib/rebalance/types';
 import CurrentAccountBadge from './CurrentAccountBadge';
 import InfoTooltip from './InfoTooltip';
 import OnboardingChecklist from './OnboardingChecklist';
+import CategoryAllocationChart from './CategoryAllocationChart';
+import ActionAmountChart from './ActionAmountChart';
 
 const TOLERANCE = 0.05;
 const UNIFIED_MODE_STORAGE_KEY = 'portfolio-rebalancer:unifiedRebalance';
@@ -315,7 +317,19 @@ export default function RebalanceCalculator() {
         <>
           <div className="card">
             <h3 className="font-semibold mb-3">{t('resultTitle')}</h3>
-            <div className="overflow-x-auto">
+            <CategoryAllocationChart
+              data={result.categories.map((c) => ({
+                categoryId: c.categoryId,
+                name: c.name,
+                currentPercent: c.currentPercent,
+                targetPercent: c.targetPercent,
+                projectedPercent: c.projectedPercent,
+              }))}
+              currentLabel={t('chartCurrentLabel')}
+              targetLabel={t('chartTargetLabel')}
+              projectedLabel={t('chartProjectedLabel')}
+            />
+            <div className="overflow-x-auto mt-5">
               <table className="w-full text-left">
                 <thead>
                   <tr>
@@ -349,7 +363,20 @@ export default function RebalanceCalculator() {
 
           <div className="card">
             <h3 className="font-semibold mb-3">{t('colTicker')}</h3>
-            <div className="overflow-x-auto">
+            <ActionAmountChart
+              data={result.actions
+                .filter((a) => a.action !== 'hold')
+                .map((a) => ({
+                  key: a.holdingId,
+                  primaryLabel: primaryLabel(a),
+                  secondaryLabel: secondaryLabel(a),
+                  action: a.action as 'buy' | 'sell',
+                  amountInBaseCurrency: a.amountInBaseCurrency,
+                }))}
+              buyLabel={t('buy')}
+              sellLabel={t('sell')}
+            />
+            <div className="overflow-x-auto mt-5">
               <table className="w-full text-left">
                 <thead>
                   <tr>
