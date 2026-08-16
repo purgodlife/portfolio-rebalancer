@@ -14,7 +14,7 @@
     "viewOnInvesting": "Investing.com에서 검색"
   },
   "nav": {
-    "dashboard": "리밸런싱 계산기",
+    "dashboard": "홈",
     "allocation": "자산배분 설정",
     "holdings": "보유종목",
     "watchlist": "관심종목",
@@ -28,7 +28,8 @@
     "portfolio": "포트폴리오",
     "records": "기록",
     "analysis": "분석",
-    "settingsBackupTab": "백업/복원"
+    "settingsBackupTab": "백업/복원",
+    "calculator": "리밸런싱 계산기"
   },
   "disclaimer": {
     "title": "서비스 이용 전 꼭 확인해주세요",
@@ -463,5 +464,22 @@
   },
   "ads": {
     "label": "광고"
+  },
+  "dashboard": {
+    "title": "홈",
+    "allAccountsNote": "모든 계좌를 합산한 값입니다. 계좌별로 보려면 포트폴리오 탭에서 계좌를 선택하세요.",
+    "emptyNote": "아직 자산배분이나 보유종목이 입력되지 않았습니다. 아래 체크리스트를 따라 시작해보세요.",
+    "totalValueLabel": "총 평가금액",
+    "unrealizedGainLabel": "평가손익",
+    "allocationTitle": "카테고리별 비중",
+    "needsRebalanceBadge": "리밸런싱 필요",
+    "onTrackBadge": "목표비중 유지 중",
+    "targetOf": "목표 {percent}%",
+    "quickCalculator": "리밸런싱 계산하기",
+    "quickCalculatorDesc": "입금액을 목표비중에 맞춰 무엇을 얼마나 사고팔지 계산합니다.",
+    "quickHoldings": "보유종목 보기",
+    "quickHoldingsDesc": "계좌별 보유종목과 매수/매도 내역을 관리합니다.",
+    "quickHistory": "거래내역",
+    "quickHistoryDesc": "전체 매수/매도 타임라인과 연도별 매매손익을 확인합니다."
   }
 }

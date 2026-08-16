@@ -14,7 +14,7 @@
     "viewOnInvesting": "Search on Investing.com"
   },
   "nav": {
-    "dashboard": "Rebalance Calculator",
+    "dashboard": "Home",
     "allocation": "Target Allocation",
     "holdings": "Holdings",
     "watchlist": "Watchlist",
@@ -28,7 +28,8 @@
     "portfolio": "Portfolio",
     "records": "Records",
     "analysis": "Analysis",
-    "settingsBackupTab": "Backup / Restore"
+    "settingsBackupTab": "Backup / Restore",
+    "calculator": "Rebalance Calculator"
   },
   "disclaimer": {
     "title": "Please review before using this app",
@@ -463,5 +464,22 @@
   },
   "ads": {
     "label": "Advertisement"
+  },
+  "dashboard": {
+    "title": "Home",
+    "allAccountsNote": "Totals across all accounts. To see a single account, pick it from the Portfolio tab.",
+    "emptyNote": "You haven't set up a target allocation or added any holdings yet. Follow the checklist below to get started.",
+    "totalValueLabel": "Total value",
+    "unrealizedGainLabel": "Unrealized gain/loss",
+    "allocationTitle": "Allocation by category",
+    "needsRebalanceBadge": "Rebalancing needed",
+    "onTrackBadge": "On target",
+    "targetOf": "target {percent}%",
+    "quickCalculator": "Run the rebalance calculator",
+    "quickCalculatorDesc": "Calculate what to buy or sell to match your target allocation.",
+    "quickHoldings": "View holdings",
+    "quickHoldingsDesc": "Manage holdings and buy/sell lots per account.",
+    "quickHistory": "Transaction history",
+    "quickHistoryDesc": "See the full buy/sell timeline and yearly realized gains."
   }
 }

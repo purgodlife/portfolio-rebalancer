@@ -1,5 +1,5 @@
-import RebalanceCalculator from '@/components/RebalanceCalculator';
+import Dashboard from '@/components/Dashboard';
 
 export default function DashboardPage() {
-  return <RebalanceCalculator />;
+  return <Dashboard />;
 }

@@ -15,7 +15,7 @@ export default function NavBar() {
   // 표시되도록 pathname이 이 접두사로 시작하면 활성으로 취급한다.
   const items: { href: string; label: string; matchPrefix: string }[] = [
     { href: '/', label: t('dashboard'), matchPrefix: '/' },
-    { href: '/portfolio/holdings', label: t('portfolio'), matchPrefix: '/portfolio' },
+    { href: '/portfolio/calculator', label: t('portfolio'), matchPrefix: '/portfolio' },
     { href: '/records/history', label: t('records'), matchPrefix: '/records' },
     { href: '/analysis/risk', label: t('analysis'), matchPrefix: '/analysis' },
     { href: '/settings/backup', label: t('settings'), matchPrefix: '/settings' },
@@ -25,7 +25,7 @@ export default function NavBar() {
     <header className="border-b border-gray-200 bg-white">
       <MarketTicker />
       <div className="mx-auto max-w-5xl px-4 py-3 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-6 overflow-x-auto">
+        <div className="flex min-w-0 items-center gap-6 overflow-x-auto">
           <span className="font-semibold text-brand-700 whitespace-nowrap">
             Portfolio Rebalancer
           </span>
