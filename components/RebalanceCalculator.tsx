@@ -17,6 +17,7 @@ import CurrentAccountBadge from './CurrentAccountBadge';
 import InfoTooltip from './InfoTooltip';
 import OnboardingChecklist from './OnboardingChecklist';
 import CategoryAllocationChart from './CategoryAllocationChart';
+import CategoryPieChart from './CategoryPieChart';
 import ActionAmountChart from './ActionAmountChart';
 
 const TOLERANCE = 0.05;
@@ -317,6 +318,17 @@ export default function RebalanceCalculator() {
         <>
           <div className="card">
             <h3 className="font-semibold mb-3">{t('resultTitle')}</h3>
+
+            <h4 className="mb-3 text-sm font-medium text-gray-600">{t('pieTitle')}</h4>
+            <CategoryPieChart
+              data={result.categories.map((c) => ({
+                categoryId: c.categoryId,
+                name: c.name,
+                value: c.currentValueBase,
+              }))}
+            />
+
+            <h4 className="mb-3 mt-6 text-sm font-medium text-gray-600">{t('barTitle')}</h4>
             <CategoryAllocationChart
               data={result.categories.map((c) => ({
                 categoryId: c.categoryId,

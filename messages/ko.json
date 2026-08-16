@@ -173,7 +173,9 @@
     "usdKrwRateInfo": "이 환율로 원화·달러 보유종목과 입금액을 하나의 기준(원화)으로 환산해 목표비중을 계산합니다. 계산된 매수/매도 금액은 다시 각 종목의 원래 통화로 환산해 보여줍니다. 기본값은 실시간 환율(Frankfurter.app)이며, 직접 수정하면 그 값을 우선 사용합니다.",
     "chartCurrentLabel": "현재 비중",
     "chartTargetLabel": "목표 비중",
-    "chartProjectedLabel": "리밸런싱 후 예상 비중"
+    "chartProjectedLabel": "리밸런싱 후 예상 비중",
+    "pieTitle": "현재 구성",
+    "barTitle": "목표 대비 현황"
   },
   "settings": {
     "title": "설정 및 백업",

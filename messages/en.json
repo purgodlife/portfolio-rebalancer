@@ -173,7 +173,9 @@
     "usdKrwRateInfo": "This rate is used to convert KRW and USD holdings and your deposit amount into a single base currency (KRW) to calculate target percentages. The resulting buy/sell amounts are then converted back into each holding's original currency. It defaults to a live rate (Frankfurter.app); editing it overrides the live rate.",
     "chartCurrentLabel": "Current",
     "chartTargetLabel": "Target",
-    "chartProjectedLabel": "Projected after rebalancing"
+    "chartProjectedLabel": "Projected after rebalancing",
+    "pieTitle": "Current composition",
+    "barTitle": "Progress toward target"
   },
   "settings": {
     "title": "Settings & Backup",
