@@ -29,7 +29,10 @@
     "records": "Records",
     "analysis": "Analysis",
     "settingsBackupTab": "Backup / Restore",
-    "calculator": "Rebalance Calculator"
+    "calculator": "Rebalance Calculator",
+    "privacy": "Privacy Policy",
+    "about": "About",
+    "contact": "Contact"
   },
   "disclaimer": {
     "title": "Please review before using this app",
@@ -486,5 +489,34 @@
     "quickHoldingsDesc": "Manage holdings and buy/sell lots per account.",
     "quickHistory": "Transaction history",
     "quickHistoryDesc": "See the full buy/sell timeline and yearly realized gains."
+  },
+  "about": {
+    "title": "About",
+    "intro": "Portfolio Rebalancer is a personal web app that calculates what to buy or sell to bring your portfolio in line with a target asset allocation whenever you make a deposit.",
+    "purpose": "It supports rebalancing across Korean (KOSPI/KOSDAQ) and US stocks, either per account or combined across all accounts, alongside reference tools like a tax-benefit calculator, a risk checklist, and asset trend tracking.",
+    "dataPrinciple": "This app does not store personal data on any server. Holdings, target allocations, and account info are all kept only in your browser, and can be exported to and imported from a JSON file.",
+    "notAdvice": "Everything this app calculates and shows is for reference only and is not investment advice. See the Disclaimer page for details."
+  },
+  "contact": {
+    "title": "Contact",
+    "intro": "For bug reports, feature requests, or other questions, please reach out by email.",
+    "emailLabel": "Email",
+    "email": "contact@example.com",
+    "responseNote": "This is a one-person side project, so replies may take a little while."
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "updatedNote": "Last updated: 2026-08-17",
+    "noServerTitle": "No personal data stored on a server",
+    "noServerBody": "This app has no sign-up or login. Portfolio data you enter — holdings, target allocations, account names — is never sent to or stored on a server.",
+    "localStorageTitle": "Local browser storage",
+    "localStorageBody": "Everything you enter is stored only in your browser (localStorage/IndexedDB) on the device you're using. Clearing your browser storage or switching devices/browsers means that data won't be there — we recommend backing it up with the JSON export in Settings.",
+    "quoteProxyTitle": "Quote proxy",
+    "quoteProxyBody": "To show live prices and exchange rates, only stock tickers are looked up through a relay API. This relay is a simple pass-through — it never receives, stores, or logs any personal portfolio data such as quantities, cost basis, or target allocations.",
+    "adCookieTitle": "Ads and cookies",
+    "adCookieBody": "This site may run Google AdSense and/or Kakao AdFit ads to cover running costs. These ad networks may use their own cookies for ad personalization, governed by each network's own policy. This site itself never shares your portfolio data (holdings, quantities, cost basis, target allocation, etc.) with any ad network.",
+    "googleAdPolicyLinkLabel": "Learn how Google uses cookies for ads",
+    "contactTitle": "Contact",
+    "contactBody": "If you have questions about this privacy policy, please reach out via the Contact page."
   }
 }
