@@ -1,7 +1,21 @@
 'use client';
 
+import { useEffect } from 'react';
 import Script from 'next/script';
 import { useTranslations } from 'next-intl';
+
+function PushAdsenseSlot() {
+  useEffect(() => {
+    try {
+      const w = window as unknown as { adsbygoogle?: unknown[] };
+      w.adsbygoogle = w.adsbygoogle || [];
+      w.adsbygoogle.push({});
+    } catch {
+      // 광고 차단기 등으로 실패해도 앱 동작에는 영향 없음
+    }
+  }, []);
+  return null;
+}
 
 /**
  * 광고 영역(카카오 애드핏 / 구글 애드센스). 둘 다 승인 전이라 관련 환경변수가
@@ -88,21 +102,7 @@ export default function AdSlot() {
               data-ad-format="auto"
               data-full-width-responsive="true"
             />
-            <Script
-              async
-              src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
-              strategy="afterInteractive"
-              crossOrigin="anonymous"
-              onLoad={() => {
-                try {
-                  const w = window as unknown as { adsbygoogle?: unknown[] };
-                  w.adsbygoogle = w.adsbygoogle || [];
-                  w.adsbygoogle.push({});
-                } catch {
-                  // 광고 차단기 등으로 실패해도 앱 동작에는 영향 없음
-                }
-              }}
-            />
+            <PushAdsenseSlot />
           </>
         )}
       </div>

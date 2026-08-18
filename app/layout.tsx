@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import './globals.css';
 
 /**
@@ -15,6 +16,11 @@ import './globals.css';
  * - NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION: 구글 서치콘솔 "HTML 태그" 소유확인
  *   방식에서 주는 content 값만(전체 <meta> 태그가 아니라 content="" 안의 값만).
  * - NEXT_PUBLIC_NAVER_SITE_VERIFICATION: 네이버 서치어드바이저 소유확인 값.
+ * - NEXT_PUBLIC_ADSENSE_CLIENT: 구글 애드센스 퍼블리셔 ID("ca-pub-..." 형태).
+ *   이 값이 있으면 애드센스 확인 스크립트를 모든 페이지 <head>에 심는다 —
+ *   애드센스는 광고 단위(슬롯) 없이도 이 스크립트만으로 사이트 소유를
+ *   확인하므로, 실제 광고 표시 여부(AdSlot.tsx, NEXT_PUBLIC_ADSENSE_SLOT
+ *   필요)와 별개로 여기서 독립적으로 로드한다.
  */
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL;
 const TITLE = 'Portfolio Rebalancer';
@@ -40,9 +46,21 @@ export const metadata: Metadata = {
 
 // next-intl의 [locale] 레이아웃이 언어/본문을 담당하므로,
 // 이 최상위 레이아웃은 html/body 뼈대만 제공한다.
+const ADSENSE_CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html>
+      <head>
+        {ADSENSE_CLIENT && (
+          <Script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
+        )}
+      </head>
       <body>{children}</body>
     </html>
   );
