@@ -32,7 +32,8 @@
     "calculator": "Rebalance Calculator",
     "privacy": "Privacy Policy",
     "about": "About",
-    "contact": "Contact"
+    "contact": "Contact",
+    "guides": "Guides"
   },
   "disclaimer": {
     "title": "Please review before using this app",
@@ -518,5 +519,98 @@
     "googleAdPolicyLinkLabel": "Learn how Google uses cookies for ads",
     "contactTitle": "Contact",
     "contactBody": "If you have questions about this privacy policy, please reach out via the Contact page."
+  },
+  "guides": {
+    "indexTitle": "Investing Guides",
+    "indexDescription": "Background on the concepts and rules behind this app's calculators. Written from statutes and official government sources; this is reference information, not tax or investment advice.",
+    "backToList": "← Back to guides",
+    "sourceLabel": "Source",
+    "list": {
+      "rebalancing": {
+        "title": "What Is Rebalancing?",
+        "summary": "Why target weights drift over time, and two ways to bring them back — with or without selling."
+      },
+      "grahamChecklist": {
+        "title": "Benjamin Graham's Investor Checklist",
+        "summary": "The Intelligent Investor's defensive and enterprising investor criteria, and the limits of applying them today."
+      },
+      "taxBenefitsKr": {
+        "title": "Korea: Pension Savings, IRP, and ISA Tax Benefits",
+        "summary": "How Korea's two main tax-advantaged accounts for individual investors work."
+      },
+      "taxBenefitsUs": {
+        "title": "401(k), Traditional IRA, and Roth IRA Basics",
+        "summary": "When each US retirement account is taxed, and 2026 contribution limits."
+      },
+      "capitalGainsTax": {
+        "title": "Selling Domestic vs. Foreign Stock: How the Tax Differs",
+        "summary": "Securities transaction tax, capital gains tax, and how tax residency changes the rules."
+      }
+    },
+    "rebalancing": {
+      "title": "What Is Rebalancing? — Why Target Weights Matter",
+      "intro": "When you invest regularly, the asset allocation you started with gradually drifts away from your target over time. Rebalancing is the process of bringing those weights back in line.",
+      "section1Heading": "Why Weights Drift",
+      "section1Body": "Different holdings move by different amounts. Assets that perform well naturally grow to a larger share of the portfolio, while laggards shrink. Left unchecked, this can leave you more exposed to a single asset than you originally intended.",
+      "section2Heading": "Two Ways to Rebalance",
+      "section2Body": "Rebalancing with new contributions only means buying more of whatever is below target, without selling anything — avoiding the taxes and costs that come with a sale. Rebalancing with sells goes further: when new money alone isn't enough to close the gap, you sell part of an overweight holding to hit the target exactly. It's more precise, but a sale can trigger tax.",
+      "section3Heading": "Rebalancing and Taxes",
+      "section3Body": "Selling a Korean-listed stock triggers a securities transaction tax (0.20% for both KOSPI and KOSDAQ as of 2026). Selling foreign-listed stock can trigger capital gains tax on the profit (for Korean tax residents, 22% on foreign-stock gains above an annual basic deduction of 2.5 million KRW). Because of this, prioritizing new contributions over selling can be more tax-efficient when a sale isn't strictly necessary.",
+      "section4Heading": "How This App Calculates It",
+      "section4Body": "Enter a deposit amount and the app first calculates the buy allocation that gets you closest to target. If that alone isn't enough, you can turn on the sell option to see exactly which holdings to sell, how much, and what to buy with the proceeds. Turning on the tax option applies the rates above to any sell amounts shown.",
+      "source": "Securities Transaction Tax Act Article 8, Korean Income Tax Act Article 118-2 (foreign asset capital gains)"
+    },
+    "grahamChecklist": {
+      "title": "What Benjamin Graham's Investor Checklist Looks At",
+      "intro": "Benjamin Graham, best known as Warren Buffett's teacher and a Columbia Business School professor, laid out concrete stock-selection criteria for individual investors in his 1949 book The Intelligent Investor. This app's checklist summarizes his defensive investor (Ch. 14) and enterprising investor (Ch. 15) criteria.",
+      "section1Heading": "Defensive vs. Enterprising Investor",
+      "section1Body": "Graham split investors into two types. The defensive investor seeks satisfactory returns with minimal effort while avoiding serious mistakes; the enterprising investor puts in far more time and analysis in pursuit of above-average returns. The defensive criteria are stricter and more conservative.",
+      "section2Heading": "The Defensive Investor's 7 Criteria",
+      "section2Body": "Adequate company size, a current ratio of at least 2, long-term debt below net current assets, earnings positive in each of the past 10 years, 20+ years of uninterrupted dividends, EPS growth of at least 33% over 10 years, and a P/E of 15 or less with a P/B of 1.5 or less (or P/E × P/B of 22.5 or less).",
+      "section3Heading": "The Enterprising Investor's Criteria",
+      "section3Body": "A lower bar than the defensive criteria: a current ratio of at least 1.5, debt below 110% of net current assets, no deficit in any of the past 5 years, a current dividend being paid, current earnings higher than in the past, and a stock price no more than 120% of tangible asset value. More candidates qualify, but the investor is expected to dig in much further before buying.",
+      "section4Heading": "Limits of Applying These Criteria Today",
+      "section4Body": "The original thresholds were built around 1970s US markets and dollar values, so applying them literally today would disqualify almost every stock. This app substitutes modern approximations — a market cap of $2 billion or more (converted for Korean-won stocks), a debt-to-equity ratio, and so on — and since free financial data typically only covers the last 4 years, the 10- and 20-year thresholds are scaled down proportionally. Treat these as reference indicators, not a definitive verdict.",
+      "source": "Benjamin Graham, The Intelligent Investor, Chapters 14–15"
+    },
+    "taxBenefitsKr": {
+      "title": "Pension Savings, IRP, and ISA: Korea's Tax-Advantaged Accounts",
+      "intro": "Korea offers individual investors two main types of tax-advantaged accounts: Pension Savings / IRP (individual retirement pension) and ISA (Individual Savings Account). Each works on a different benefit structure.",
+      "section1Heading": "Pension Savings / IRP Tax Credit",
+      "section1Body": "Contributions up to a set annual limit qualify for a 13.2%–16.5% tax credit (the rate depends on whether gross salary is under/over 55 million KRW, or comprehensive income under/over 45 million KRW). Pension Savings alone caps out at 6 million KRW; combined with IRP, up to 9 million KRW qualifies. Because taxation differs by withdrawal timing and method (pension income tax vs. other income tax), an early withdrawal can be disadvantageous.",
+      "section2Heading": "ISA Tax Exemption and Reduced Rate",
+      "section2Body": "Net gains inside an ISA — interest, dividends, and capital gains combined — are tax-free up to an exemption limit, with any excess taxed separately at 9.9%, lower than the general 15.4% financial income tax rate. There are general and low-income/farming-fishing variants, with the latter getting a higher exemption limit when eligibility conditions are met. Because exact limits and eligibility change with each year's tax law revisions, check with your brokerage at the time you open the account.",
+      "section3Heading": "Rolling ISA Proceeds Into a Pension Account",
+      "section3Body": "If you close an ISA and roll the proceeds into Pension Savings or an IRP within 60 days, 10% of the rolled-over amount (up to 3 million KRW) is recognized as an additional tax-credit allowance.",
+      "section4Heading": "A Caveat",
+      "section4Body": "This summary is reference information, not tax advice. Proposed reforms that have not yet passed the National Assembly (such as proposals to raise ISA contribution or exemption limits) are not reflected here. For exact figures, check the National Tax Service's Hometax site or consult a tax professional.",
+      "source": "Korean Income Tax Act Article 59-3 (pension account tax credit), Restriction of Special Taxation Act Article 91-18 (ISA tax treatment)"
+    },
+    "taxBenefitsUs": {
+      "title": "401(k), Traditional IRA, and Roth IRA: US Retirement Account Basics",
+      "intro": "The two main US retirement savings vehicles are the employer-sponsored 401(k) and the individually opened IRA (Traditional or Roth). Each account type is taxed at a different point in time.",
+      "section1Heading": "2026 Contribution Limits",
+      "section1Body": "The IRS adjusts contribution limits each year for inflation. Both 401(k) plans (including 403(b), 457, and TSP) and IRAs have a base limit, with an additional catch-up contribution for those 50 and older, and an even higher special catch-up for ages 60–63. This app's tax-benefits calculator (US tab) computes the exact figures once you enter your age.",
+      "section2Heading": "Traditional IRA vs. Roth IRA",
+      "section2Body": "A Traditional IRA contribution can be tax-deductible (pre-tax), with both principal and earnings taxed as ordinary income on withdrawal. A Roth IRA is funded with after-tax money, and qualified withdrawals — principal and earnings — are entirely tax-free. If you or your spouse are covered by a workplace retirement plan, your Traditional IRA deduction phases out based on your MAGI; Roth IRA contribution limits phase out or disappear entirely above certain income thresholds.",
+      "section3Heading": "How a 401(k) Works",
+      "section3Body": "Contributions are typically pre-tax payroll deductions; employer matching and vesting schedules vary by plan. Many employers also offer a Roth 401(k) option, funded after-tax with tax-free qualified withdrawals.",
+      "section4Heading": "Long-Term Capital Gains (LTCG) Brackets",
+      "section4Body": "For assets held more than a year in a regular taxable account (outside a retirement account), federal capital gains are taxed at 0%, 15%, or 20% depending on taxable income. Higher earners above certain thresholds may owe an additional 3.8% Net Investment Income Tax (NIIT).",
+      "source": "IRS, \"401(k) limit increases to $24,500 for 2026, IRA limit increases to $7,500\" (IR-2025-111), IRS Publication 590-A/B, IRS Revenue Procedure 2025-32"
+    },
+    "capitalGainsTax": {
+      "title": "Selling Domestic vs. Foreign Stock: How the Tax Differs",
+      "intro": "Even though it's all \"selling stock,\" Korean-listed and foreign (US)-listed shares are taxed differently — and the rules shift again depending on your tax residency (Korea or the US).",
+      "section1Heading": "Securities Transaction Tax — Based on Market, Not Residency",
+      "section1Body": "Selling a Korean-listed stock always triggers a securities transaction tax, regardless of residency (0.20% for both KOSPI and KOSDAQ as of 2026). This is a transaction tax on the sale amount itself, independent of whether the sale was profitable.",
+      "section2Heading": "Capital Gains Tax on Foreign Stock for Korean Residents",
+      "section2Body": "If a Korean tax resident sells foreign (e.g., US)-listed stock at a profit, the portion of annual net gains exceeding a 2.5 million KRW basic deduction is taxed at 22% (including local tax). Gains from Korean-listed stock are generally tax-exempt unless the seller is a major shareholder.",
+      "section3Heading": "For US Residents and Citizens",
+      "section3Body": "Because the US taxes worldwide income, US tax residents and citizens must report capital gains from both Korean-listed and US-listed stock on their federal return (Korea's domestic tax exemption doesn't erase the US filing obligation). Gains on assets held more than a year (long-term) are taxed at 0%/15%/20%; assets held a year or less (short-term) are taxed at ordinary income rates, and higher earners may owe an additional 3.8% NIIT.",
+      "section4Heading": "Annual Netting and Filing Timing",
+      "section4Body": "Capital gains tax is calculated by netting gains and losses across the whole year, not sale by sale. This app's transaction history screen shows cumulative realized gains by year (split by holding period), with actual filing due the following May in Korea or by the relevant US tax deadline.",
+      "source": "Securities Transaction Tax Act Article 8, Korean Income Tax Act Article 118-2, IRS Topic no. 409 (Capital gains and losses)"
+    }
   }
 }

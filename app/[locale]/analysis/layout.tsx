@@ -7,6 +7,7 @@ export default async function AnalysisLayout({ children }: { children: ReactNode
   const items = [
     { href: '/analysis/risk', label: t('risk') },
     { href: '/analysis/tax-benefits', label: t('taxBenefits') },
+    { href: '/analysis/guides', label: t('guides') },
   ];
   return (
     <div>
