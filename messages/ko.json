@@ -484,6 +484,8 @@
     "needsRebalanceBadge": "리밸런싱 필요",
     "onTrackBadge": "목표비중 유지 중",
     "targetOf": "목표 {percent}%",
+    "upcomingEarningsTitle": "다가오는 실적발표",
+    "upcomingEarningsDday": "{days, plural, =0 {오늘} other {D-#}}",
     "quickCalculator": "리밸런싱 계산하기",
     "quickCalculatorDesc": "입금액을 목표비중에 맞춰 무엇을 얼마나 사고팔지 계산합니다.",
     "quickHoldings": "보유종목 보기",

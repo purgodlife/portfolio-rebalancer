@@ -80,6 +80,7 @@ type SummaryFields = Pick<
   | 'quoteType'
   | 'expenseRatio'
   | 'topHoldingsConcentration'
+  | 'earningsDate'
 >;
 
 async function fetchQuoteSummary(symbol: string): Promise<Partial<SummaryFields> & { warning?: string }> {
@@ -87,7 +88,7 @@ async function fetchQuoteSummary(symbol: string): Promise<Partial<SummaryFields>
   if (!session) return { warning: '재무 데이터를 가져오지 못했습니다 (인증 실패)' };
 
   try {
-    const modules = 'financialData,defaultKeyStatistics,summaryDetail,incomeStatementHistory,quoteType,fundProfile,topHoldings';
+    const modules = 'financialData,defaultKeyStatistics,summaryDetail,incomeStatementHistory,quoteType,fundProfile,topHoldings,calendarEvents';
     const url = `https://query1.finance.yahoo.com/v10/finance/quoteSummary/${encodeURIComponent(symbol)}?modules=${modules}&crumb=${encodeURIComponent(session.crumb)}`;
     const res = await fetch(url, { headers: { 'User-Agent': UA, Cookie: session.cookie }, cache: 'no-store' });
     if (!res.ok) return { warning: '재무 데이터를 가져오지 못했습니다' };
@@ -121,6 +122,12 @@ async function fetchQuoteSummary(symbol: string): Promise<Partial<SummaryFields>
         ? topHoldingsList.reduce((sum, h) => sum + (h.holdingPercent?.raw ?? 0), 0)
         : null;
 
+    // calendarEvents.earnings.earningsDate는 예상 실적발표일이 범위로 나올 때가
+    // 많아(예: 확정 전 잠정 범위 2개) 배열로 온다 — 가장 이른 값을 다가오는
+    // 실적발표일로 취급한다. epoch 초 단위라 ms로 변환.
+    const earningsDateRaw: number | undefined = result.calendarEvents?.earnings?.earningsDate?.[0]?.raw;
+    const earningsDate = typeof earningsDateRaw === 'number' ? earningsDateRaw * 1000 : null;
+
     return {
       currency: summary.currency ?? null,
       currentRatio: financialData.currentRatio?.raw ?? null,
@@ -133,6 +140,7 @@ async function fetchQuoteSummary(symbol: string): Promise<Partial<SummaryFields>
       quoteType,
       expenseRatio,
       topHoldingsConcentration,
+      earningsDate,
     };
   } catch {
     return { warning: '재무 데이터를 가져오지 못했습니다' };
@@ -186,6 +194,7 @@ export async function GET(req: NextRequest) {
     quoteType: summaryData.quoteType ?? null,
     expenseRatio: summaryData.expenseRatio ?? null,
     topHoldingsConcentration: summaryData.topHoldingsConcentration ?? null,
+    earningsDate: summaryData.earningsDate ?? null,
     fetchedAt: Date.now(),
     warnings,
   };

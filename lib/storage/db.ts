@@ -20,6 +20,15 @@ export interface AppSettings {
   disclaimerAgreedAt?: string;
 }
 
+export interface EarningsCacheEntry {
+  /** `${market}:${ticker}` */
+  key: string;
+  /** 다가오는 실적발표 예정일(epoch ms). 데이터 없으면 null. */
+  earningsDate: number | null;
+  /** 이 값을 조회한 시각(epoch ms) — 일정 시간 지나면 재조회 판단용. */
+  fetchedAt: number;
+}
+
 
 /**
  * 브라우저 로컬(IndexedDB)에만 저장되는 데이터베이스.
@@ -32,6 +41,7 @@ export class PortfolioDatabase extends Dexie {
   settings!: Table<AppSettings, string>;
   snapshots!: Table<PortfolioSnapshot, string>;
   accounts!: Table<Account, string>;
+  earningsCache!: Table<EarningsCacheEntry, string>;
 
   constructor() {
     super('portfolio-rebalancer-db');
@@ -58,6 +68,19 @@ export class PortfolioDatabase extends Dexie {
       settings: 'id',
       snapshots: 'id, date',
       accounts: 'id',
+    });
+    // v4: 실적발표 예정일 캐시. Yahoo Finance 재무데이터 API는 rate limit이
+    // 걸려 있어(분당 20회) 대시보드를 열 때마다 보유종목 전부를 다시 조회하면
+    // 낭비이자 남용에 가깝다 — 마지막 조회로부터 일정 시간(12시간) 이내면
+    // 이 캐시를 그대로 쓰고, 지났을 때만 재조회한다.
+    this.version(4).stores({
+      categories: 'id',
+      holdings: 'id, categoryId',
+      watchlist: 'id',
+      settings: 'id',
+      snapshots: 'id, date',
+      accounts: 'id',
+      earningsCache: 'key',
     });
   }
 }

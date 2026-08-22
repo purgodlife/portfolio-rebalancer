@@ -16,6 +16,7 @@ function makeFundamentals(overrides: Partial<Fundamentals> = {}): Fundamentals {
     quoteType: 'EQUITY',
     expenseRatio: null,
     topHoldingsConcentration: null,
+    earningsDate: null,
     fetchedAt: Date.now(),
     warnings: [],
     ...overrides,

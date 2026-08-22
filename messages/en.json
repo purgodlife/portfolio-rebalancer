@@ -484,6 +484,8 @@
     "needsRebalanceBadge": "Rebalancing needed",
     "onTrackBadge": "On target",
     "targetOf": "target {percent}%",
+    "upcomingEarningsTitle": "Upcoming Earnings",
+    "upcomingEarningsDday": "{days, plural, =0 {Today} other {D-#}}",
     "quickCalculator": "Run the rebalance calculator",
     "quickCalculatorDesc": "Calculate what to buy or sell to match your target allocation.",
     "quickHoldings": "View holdings",

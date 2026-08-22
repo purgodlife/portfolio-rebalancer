@@ -25,6 +25,8 @@ export interface Fundamentals {
   quoteType: string | null;
   expenseRatio: number | null;
   topHoldingsConcentration: number | null;
+  /** 다가오는 실적발표 예정일(Yahoo calendarEvents, epoch ms). 지난 실적이거나 데이터 없으면 null. */
+  earningsDate: number | null;
   fetchedAt: number;
   warnings: string[];
 }

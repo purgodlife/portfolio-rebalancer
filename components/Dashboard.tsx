@@ -8,6 +8,8 @@ import { calculateRebalance } from '@/lib/rebalance';
 import { groupHoldings } from '@/lib/rebalance/grouping';
 import { mergeAccountsForUnifiedRebalance } from '@/lib/rebalance/unifiedRebalance';
 import { useUsdKrwRate, FALLBACK_USD_KRW_RATE } from '@/lib/market/fxRate';
+import { useUpcomingEarnings } from '@/lib/market/useUpcomingEarnings';
+import { selectUpcomingEarnings } from '@/lib/market/upcomingEarnings';
 import OnboardingChecklist from './OnboardingChecklist';
 
 /** 카테고리 하나가 목표비중과 이만큼(%p) 이상 벌어지면 "리밸런싱 필요"로 표시한다. */
@@ -52,15 +54,20 @@ export default function Dashboard() {
   // 평가손익(총 평가금액 - 총 매입원가)을 구하려면 매입원가가 필요한데
   // calculateRebalance()의 결과에는 없으므로, 원본 보유종목을 다시 그룹핑해서
   // 매수 lot들의 평균원가 기준으로 계산한다(평균원가법, lib/rebalance/grouping.ts).
+  const heldGroups = useMemo(() => groupHoldings(merged.holdings), [merged.holdings]);
+
   const totalCostBase = useMemo(() => {
     let sum = 0;
-    for (const g of groupHoldings(merged.holdings)) {
+    for (const g of heldGroups) {
       if (g.netQuantity <= 0) continue;
       const costInHoldingCcy = g.avgBuyPrice * g.netQuantity;
       sum += g.currency === 'USD' ? costInHoldingCcy * usdKrwRate : costInHoldingCcy;
     }
     return sum;
-  }, [merged.holdings, usdKrwRate]);
+  }, [heldGroups, usdKrwRate]);
+
+  const { entries: earningsEntries } = useUpcomingEarnings(heldGroups);
+  const upcomingEarnings = useMemo(() => selectUpcomingEarnings(earningsEntries, Date.now()), [earningsEntries]);
 
   const totalValueBase = result?.totalValueBeforeBase ?? 0;
   const gainBase = totalValueBase - totalCostBase;
@@ -140,6 +147,29 @@ export default function Dashboard() {
             </div>
           </div>
         </>
+      )}
+
+      {upcomingEarnings.length > 0 && (
+        <div className="card">
+          <h3 className="mb-3 font-semibold">{t('upcomingEarningsTitle')}</h3>
+          <ul className="divide-y divide-gray-100">
+            {upcomingEarnings.map((e) => {
+              const daysLeft = Math.ceil((e.earningsDate - Date.now()) / (24 * 60 * 60 * 1000));
+              return (
+                <li key={e.key} className="flex items-center justify-between gap-3 py-2 text-sm">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-gray-900">{e.name}</p>
+                    <p className="text-xs text-gray-400">{e.ticker}</p>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <p className="text-gray-700">{new Date(e.earningsDate).toLocaleDateString()}</p>
+                    <p className="text-xs text-brand-600">{t('upcomingEarningsDday', { days: daysLeft })}</p>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
       )}
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
