@@ -1,4 +1,15 @@
+import type { Metadata } from 'next';
+import { buildAlternates } from '@/lib/seo/canonical';
 import { getTranslations } from 'next-intl/server';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return { alternates: buildAlternates(locale, '/settings/privacy') };
+}
 
 export default async function SettingsPrivacyPage() {
   const t = await getTranslations('privacy');

@@ -1,5 +1,16 @@
+import type { Metadata } from 'next';
+import { buildAlternates } from '@/lib/seo/canonical';
 import { getTranslations } from 'next-intl/server';
 import GuideArticle from '@/components/GuideArticle';
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return { alternates: buildAlternates(locale, '/analysis/guides/tax-benefits-us') };
+}
 
 export default async function Page() {
   const t = await getTranslations('guides.taxBenefitsUs');

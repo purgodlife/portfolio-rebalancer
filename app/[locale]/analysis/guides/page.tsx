@@ -1,3 +1,5 @@
+import type { Metadata } from 'next';
+import { buildAlternates } from '@/lib/seo/canonical';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 
@@ -9,6 +11,15 @@ const HREFS: Record<(typeof SLUGS)[number], string> = {
   taxBenefitsUs: '/analysis/guides/tax-benefits-us',
   capitalGainsTax: '/analysis/guides/capital-gains-tax',
 };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  return { alternates: buildAlternates(locale, '/analysis/guides') };
+}
 
 export default async function GuidesIndexPage() {
   const t = await getTranslations('guides');
